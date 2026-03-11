@@ -1,6 +1,17 @@
 import roguedungeon.model as model
 import colorama
 from colorama import Fore, Back, Style
+from colorama import just_fix_windows_console
+
+ROOM_COLOURS = {
+
+    "Shop": Fore.BLACK + Back.YELLOW,
+    "Game": Fore.WHITE + Back.BLACK,
+    "Room": Fore.BLUE + Back.BLACK,
+    "Passageway": Fore.BLACK + Back.RED
+}
+
+ROOM_COLOURS_DEFAULT = Fore.WHITE + Back.BLACK
 
 class TextView:
     def __init__(self):
@@ -9,6 +20,7 @@ class TextView:
     @staticmethod
     def initialise():
         colorama.init()
+        just_fix_windows_console()
 
 
 class RoomTextView(TextView):
@@ -31,9 +43,16 @@ class MapSquareTextView(TextView):
         self.square = square
 
     def print(self):
-        print(f"{Style.BRIGHT}{self.square.room.name} - {self.square.room.description}{Style.RESET_ALL}")
+        room_type_format = ROOM_COLOURS.get(self.square.room.room_type, ROOM_COLOURS_DEFAULT)
+        print(f"{Style.BRIGHT}{room_type_format}{self.square.room.name} - {self.square.room.description}{Style.RESET_ALL}")
         for k,v in self.square.exits.items():
-            if v.room_id != model.Map.EXIT_NONE:
+            if v.room_id == model.Map.EXIT_NONE:
+                pass
+            elif v.room_id == model.Map.EXIT_BLOCKED:
+                print(f"Exit {k.value} is blocked")
+            elif v.room_id == model.Map.EXIT_UNKNOWN:
+                print(f"Exit {k.value} is unexplored")
+            else:
                 print(f"Exit {k.value} leads to {v.name}")
 
 
