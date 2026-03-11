@@ -1,0 +1,14 @@
+RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West
+1,Entrance,The start of the dungeon,Entrance,Commonplace,1,1,1,,1,1
+2,B,"Room 2. B (Passageway, Commonplace)",Passageway,Commonplace,1,1,,,1,1
+3,Crossroads,"Room 3. Crossroads (Passageway, Commonplace)",Passageway,Commonplace,1,1,1,1,1,1
+4,D,"Room 4. D (Shop, Standard)",Shop,Standard,2,1,,,1,
+5,E,"Room 5. E (Shop, Standard)",Shop,Standard,1,1,1,,1,
+6,F,"Room 6. F (Room, Unusual)",Room,Unusual,2,1,,1,,
+7,Store,"Room 7. Store (Room, Unusual)",Room,Unusual,5,1,,1,1,
+8,H,"Room 8. H (Room, Unusual)",Room,Unusual,5,1,,1,,1
+9,I,"Room 9. I (Room, Rare)",Room,Rare,8,0,1,,,1
+10,J,"Room 10. J (Exit, Rare)",Exit,Rare,8,0,,,1,1
+98,No Exit,No exit,Game,Commonplace,1,0,,,,
+99,Blocked,The exit that way is blocked,Game,Commonplace,1,0,,,,
+100,???,???,Game,Commonplace,1,0,,,,
