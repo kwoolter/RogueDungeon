@@ -2,6 +2,7 @@ import logging
 import numpy as np
 
 from .model_enums import *
+from .model_exceptions import *
 from .rooms import Room, RoomFactory
 
 
@@ -34,6 +35,8 @@ class Map:
                          Direction.WEST: (-1, 0),
                          Direction.EAST: (1, 0)}
 
+    ENTRANCE = 1
+    EXIT_END = 1000
     EXIT_NONE = 98
     EXIT_BLOCKED = 99
     EXIT_UNKNOWN = 100
@@ -43,9 +46,14 @@ class Map:
         self.map = None
         self.current_xy = (2,0)
 
+    @property
+    def current_room_id(self):
+        x,y = self.current_xy
+        return self.map[x,y]
+
     def is_valid_xy(self, x, y):
         if x < 0 or x >= self.max_width or y < 0 or y >= self.max_height:
-            raise False
+            return False
         else:
             return True
 
@@ -58,49 +66,97 @@ class Map:
         self.map = np.zeros(self.max_width * self.max_height, dtype=int)
         self.map = self.map.reshape(self.max_width, self.max_height)
 
-        start_room = 1
-        self.map[self.current_xy] = start_room
+        x,y = self.current_xy
+        self.set_room_at(x, y, Map.ENTRANCE)
 
 
     def move(self, direction : Direction):
+
+        # Get the details of the current square
+        square = self.get_map_square_at()
+        destination_room = square.exits.get(direction, None)
+
+        # Get the ID of the room in the specified direction
+        if destination_room is not None:
+            destination = destination_room.room_id
+
+        # If no exit found in that direction then raise error
+        else:
+            raise ApplicationException(f"Room {square.room_id} has no exit {direction}",
+                                       f"Room {square.room_id} has no exit {direction}")
+
+        # If no exit in that direction then raise error
+        if destination == Map.EXIT_NONE:
+            raise ApplicationException(f"Room {square.room_id} has no exit {direction}",
+                                       f"Room {square.room_id} has no exit {direction}")
+
+        # Check if there is an exit in the specified direction
+        elif destination == Map.EXIT_BLOCKED:
+            raise ApplicationException(f"Room {square.room_id} exit {direction} is blocked.",
+                                       f"Room {square.room_id} has no exit {direction}")
+
+        # Check if a card has been dealt in the specified direction
+        elif destination == Map.EXIT_UNKNOWN:
+            raise ApplicationException(f"Moving {direction} - Map has no square in that direction.  Need to deal one.",
+                                       f"No square has been dealt {direction} of {self.current_xy}")
+        # All good so let's move
+        else:
+            x, y = self.current_xy
+            new_x, new_y = self.add_xy(x, y, direction)
+            self.current_xy = new_x, new_y
+
+
+        return self.current_xy
+
+    def add_xy(self, x, y, direction : Direction):
 
         new_x, new_y = self.current_xy
         dx, dy = Map.DIRECTION_VECTORS[direction]
         new_x += dx
         new_y += dy
 
-        if self.is_valid_xy(new_x, new_y):
-            self.current_xy = (new_x, new_y)
+        if self.is_valid_xy(new_x, new_y) == False:
+             raise ApplicationException("New XY out of bounds", f"{new_x},{new_y} out of bounds")
 
-        return self.current_xy
-
-
-
+        return new_x, new_y
 
     def print(self):
         print(f"Map {self.name}")
         print(self.map)
 
+    def set_room_at(self, x : int, y : int, room_id : int):
+        if self.is_valid_xy(x, y):
+
+            # Set the room at the specified location
+            self.map[x,y] = room_id
+
+            # Flag the room in the Factory as no longer available
+            RoomFactory.set_room_property(room_id, "Visible", False)
 
 
     def get_room_at(self, x : int = None, y: int = None):
+
         if x is None:
             x,y = self.current_xy
         elif y is None:
             z,y = self.current_xy
 
-        room_id = self.map[x,y]
-        if room_id > 0:
-            room = RoomFactory.get_room_info(room_id)
+        if self.is_valid_xy(x, y):
+            room_id = self.map[x,y]
+            if room_id > 0:
+                room = RoomFactory.get_room_info(room_id)
+            else:
+                room = None
         else:
-            room = None
+            raise ApplicationException("Get room out of bounds", f"{x}, {y} is out of bounds")
+
         return room
 
     def get_map_square_at(self, x : int = None, y: int = None):
 
         if x is None:
-            x,y = self.current_xy
-        elif y is None:
+            x,z = self.current_xy
+        if y is None:
             z,y = self.current_xy
 
         if self.is_valid_xy(x,y) is True:
@@ -139,12 +195,8 @@ class Map:
                     else:
                         square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_BLOCKED))
 
-
-
-
         else:
-            square = None
-
+            raise ApplicationException("Get square out of bounds", f"{x}, {y} is out of bounds")
 
 
         return square

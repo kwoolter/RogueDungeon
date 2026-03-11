@@ -13,7 +13,7 @@ class RoomCardDeck:
         pass
 
     def get_rooms_by_exit(self, direction):
-        rooms = RoomFactory.get_rooms_by_exit(direction)
+        rooms = RoomFactory.get_rooms_by_exit(direction.value)
         return rooms
 
 

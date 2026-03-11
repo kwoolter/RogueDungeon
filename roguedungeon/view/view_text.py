@@ -15,6 +15,16 @@ class RoomTextView:
 
         print()
 
+class MapSquareTextView:
+    def __init__(self, square : model.MapSquare):
+        self.square = square
+
+    def print(self):
+        print(f"Room {self.square.room_id}: {self.square.room.name}")
+        for k,v in self.square.exits.items():
+            print(f"Exit {k.value} leads to {v.name}")
+
+
 
 
 

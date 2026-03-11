@@ -3,6 +3,7 @@ import roguedungeon.model as model
 import roguedungeon.view as view
 import logging
 
+
 class RDCLI(cmd.Cmd):
     intro = "Welcome to the Rogue Dungeon CLI.\n" \
             "Type 'help' to see available commands.\n"
@@ -15,6 +16,7 @@ class RDCLI(cmd.Cmd):
     def do_start(self, arg):
         self.game = model.RDGame()
         self.game.initialise()
+        self.print()
 
     def run(self):
         self.cmdloop()
@@ -22,28 +24,61 @@ class RDCLI(cmd.Cmd):
     def do_status(self, arg):
         'Print status of game'
         self.game.print()
+        self.print()
 
-        room = self.game.get_current_room()
-        v = view.RoomTextView(room)
-        v.print()
+    def do_N(self, args):
+        self.move(model.Direction.NORTH)
+
+    def do_S(self, args):
+        self.move(model.Direction.SOUTH)
+
+    def do_E(self, args):
+        self.move(model.Direction.EAST)
+
+    def do_W(self, args):
+        self.move(model.Direction.WEST)
 
     def do_deal(self, arg):
-        exits = self.game.get_current_room().exits
 
+        try:
+            exits = self.game.get_adjacent_blank_squares()
+            direction = pick("Direction", list(exits))
+            print(f"Opening the door {direction}...")
+            opp_exit = model.DIRECTION_REVERSE[direction]
+            rooms = self.game.deck.get_rooms_by_exit(opp_exit)
+            room = pick("Room", rooms)
+            print(f"Dealing {room}")
 
-        direction = pick("Direction", list(exits.keys()))
-        print(f"Opening the door {direction}...")
+            self.game.deal_and_move(room.room_id, direction)
+            self.print()
+
+        except Exception as e:
+            print(e)
+
+    def move(self, direction):
+        try:
+            self.game.move(direction)
+            self.print()
+        except Exception as e:
+            print(e)
+
+    def print(self):
+        try:
+            square = self.game.get_current_map_square()
+            v = view.MapSquareTextView(square)
+            v.print()
+        except Exception as e:
+            print(f"Error {e}")
 
 
 # Function to ask the user a simple Yes/No confirmation and return a boolean
-def confirm(question : str):
-
+def confirm(question: str):
     choices = ["Yes", "No"]
 
     while True:
         print(question)
         for i in range(0, len(choices)):
-            print("%i. %s" % (i+1, choices[i]))
+            print("%i. %s" % (i + 1, choices[i]))
         choice = input("Choice?")
         if choice.isdigit() and int(choice) > 0 and int(choice) <= (len(choices)):
             break
@@ -55,11 +90,10 @@ def confirm(question : str):
 
 # Function to present a menu to pick an object from a list of objects
 # auto_pick means if the list has only one item then automatically pick that item
-def pick(object_type: str, objects: list, auto_pick: bool=False):
-
+def pick(object_type: str, objects: list, auto_pick: bool = False):
     selected_object = None
     choices = len(objects)
-    vowels ="AEIOU"
+    vowels = "AEIOU"
     if object_type[0].upper() in vowels:
         a_or_an = "an"
     else:
@@ -67,7 +101,7 @@ def pick(object_type: str, objects: list, auto_pick: bool=False):
 
     # If the list of objects is no good the raise an exception
     if objects is None or choices == 0:
-        raise(Exception("No %s to pick from." % object_type))
+        raise (Exception("No %s to pick from." % object_type))
 
     # If you selected auto pick and there is only one object in the list then pick it
     if auto_pick is True and choices == 1:
@@ -91,7 +125,7 @@ def pick(object_type: str, objects: list, auto_pick: bool=False):
             choice = int(choice)
 
             if 0 < choice <= choices:
-                selected_object = objects[choice -1]
+                selected_object = objects[choice - 1]
                 logging.info("pick(): You chose %s %s." % (object_type, str(selected_object)))
             elif choice == (choices + 1):
                 break

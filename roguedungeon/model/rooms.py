@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from .model_enums import *
+from . model_enums import *
 
 class Room:
     def __init__(self,
@@ -21,9 +21,21 @@ class Room:
         self.visible = visible
         self.exits = {}
 
+    def __str__(self):
+        text = f"{self.room_id}. {self.name}"
+        return text
 
     def add_exit(self, direction : Direction, valid : bool = True):
         self.exits[direction] = valid
+
+    def get_exits(self):
+        exits = []
+
+        for direction in Direction:
+            if self.exits.get(direction) == True:
+                exits.append(direction)
+
+        return exits
 
     def print(self):
         print(f"{self.room_id}. {self.name} - {self.description} : {self.exits}")
@@ -31,6 +43,8 @@ class Room:
 class RoomFactory:
 
     rooms = None
+
+    ROOM_VISIBLE_PROPERTY = "Visible"
 
     def __init__(self):
         pass
@@ -58,9 +72,13 @@ class RoomFactory:
     @staticmethod
     def get_room_info(room_id: int):
         df = RoomFactory.rooms
-        row = df.loc[room_id]
-        level = RoomFactory.row_to_room(room_id, row)
-        return level
+        if room_id in df.index:
+            row = df.loc[room_id]
+            room = RoomFactory.row_to_room(room_id, row)
+        else:
+            room = None
+            print(f"Can't find room with ID {room_id}")
+        return room
 
     @staticmethod
     def row_to_room(room_id, row) -> Room:
@@ -95,7 +113,7 @@ class RoomFactory:
 
         if property_name in df.columns:
 
-            q = f'{property_name} == "{property_value}"'
+            q = f"{property_name} == '{property_value}' and {RoomFactory.ROOM_VISIBLE_PROPERTY} == True"
             matched = df.query(q)
 
             for index, row in matched.iterrows():
@@ -114,16 +132,31 @@ class RoomFactory:
 
         if direction in df.columns:
 
-            q = f'{direction} == True'
+            q = f'{direction} == True and {RoomFactory.ROOM_VISIBLE_PROPERTY} == True'
             matched = df.query(q)
 
             for index, row in matched.iterrows():
-                e = RoomFactory.row_to_room(index, row)
-                matches.append(e)
+                room = RoomFactory.row_to_room(index, row)
+                matches.append(room)
         else:
             print(f"Can't find property {direction} in factory!")
 
         return matches
+
+    @staticmethod
+    def set_room_property(room_id : int, property : str, value):
+        room = RoomFactory.get_room_info(room_id)
+
+        if room is not None:
+            df = RoomFactory.rooms
+            if property in df.columns:
+                df.loc[room_id, property] = value
+            else:
+                print(f"Property {property} is not valid")
+        else:
+            print(f"Can't find room with ID {room_id}")
+
+
 
 def run_tests():
 
@@ -145,6 +178,11 @@ def run_tests():
     results = RoomFactory.get_rooms_by_exit(direction)
     for room in results:
         room.print()
+
+    room_id = 1
+    RoomFactory.set_room_property(room_id, "Name", "New Name!!!")
+    room = RoomFactory.get_room_info(room_id)
+    room.print()
 
 
 
