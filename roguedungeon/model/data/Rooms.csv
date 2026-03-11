@@ -1,16 +1,21 @@
 RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West
 1,The Dungeon Entrance Hall,The start of the dungeon,Game,Commonplace,1,0,1,,1,1
-2,East West Passageway,a long passageway,Passageway,Commonplace,1,1,,,1,1
-3,Crossroads,A crossroads of  tunnels,Passageway,Commonplace,1,1,1,1,1,1
-4,Nook,A small shop in a nook,Shop,Standard,2,1,,,1,
-5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,1,1,,1,
-6,Cranny,A small hole in the rock,Room,Unusual,2,1,,1,,
-7,The General Store,A large store full of odds and ends,Room,Unusual,5,1,,1,1,
-8,Treasure Room,A room full of locked treasure chests,Room,Unusual,5,1,,1,,1
-9,The Armory,"Room 9. The Armory (Room, Rare)",Room,Rare,8,1,1,,,1
-10,Tunnel,A tunnel carved into the rock,Passageway,Rare,8,1,,,1,1
-11,Cell,A prisoner cell,Room,Commonplace,2,1,,1,,
-98,No Exit,No exit,Game,Commonplace,1,0,,,,
+98,No Exit,No exit in that direction,Game,Commonplace,1,0,,,,
 99,Blocked,The exit that way is blocked,Game,Commonplace,1,0,,,,
 100,???,You don't know where that way leads,Game,Commonplace,1,0,,,,
 1000,The Dungeon Exit Hall,The end of the dungeon,Game,Commonplace,9,0,,1,1,1
+2,East West Passageway,a long passageway,Passageway,Commonplace,1,1,,,1,1
+3,Crossroads,A crossroads of  tunnels,Passageway,Commonplace,1,1,1,1,1,1
+4,Nook Shop,A small shop in a nook,Shop,Standard,2,1,,,1,
+5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,1,1,,1,
+6,Cranny,A small hole in the rock,Room,Unusual,2,1,,1,,
+7,The General Store,A large store full of odds and ends,Shop,Unusual,5,1,,1,1,
+8,Treasure Room,A room full of locked treasure chests,Room,Unusual,5,1,,1,,1
+9,The Armory,A storeroom for weapons and armour,Room,Rare,8,1,1,,,1
+10,Tunnel,A tunnel carved into the rock,Passageway,Rare,8,1,,,1,1
+11,Cell,A prisoner cell,Room,Commonplace,2,1,,1,,
+12,The Crypt of Eternity,A dark crypt full of stone coffins,Evil,Commonplace,2,1,1,1,,
+13,The Shrine of The Warrior,A shrine with a large statue of The Warrior,Good,Commonplace,2,1,,1,,1
+14,The Oubliette,A small cell where prisoners are forgotten ,Room,Commonplace,2,1,,,,1
+15,The Shrine of Magika,A shrine that hums with magical power,Good,Commonplace,2,1,,1,,1
+16,The Crypt of The Undead,A dark and cold crypt,Evil,Commonplace,2,1,1,,1,

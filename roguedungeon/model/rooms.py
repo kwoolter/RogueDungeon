@@ -22,7 +22,11 @@ class Room:
         self.exits = {}
 
     def __str__(self):
-        text = f"{self.name}"
+        text = f"{self.name}: Exits "
+        for k,v in self.exits.items():
+            if v ==  True:
+                text+= k.value[0]
+
         return text
 
     def add_exit(self, direction : Direction, valid : bool = True):

@@ -8,7 +8,9 @@ ROOM_COLOURS = {
     "Shop": Fore.BLACK + Back.YELLOW,
     "Game": Fore.WHITE + Back.BLACK,
     "Room": Fore.BLUE + Back.BLACK,
-    "Passageway": Fore.BLACK + Back.RED
+    "Passageway": Fore.BLACK + Back.MAGENTA,
+    "Good" : Fore.BLACK + Back.LIGHTGREEN_EX,
+    "Evil": Fore.BLACK + Back.LIGHTRED_EX
 }
 
 ROOM_COLOURS_DEFAULT = Fore.WHITE + Back.BLACK
