@@ -82,23 +82,23 @@ class Map:
 
         # If no exit found in that direction then raise error
         else:
-            raise ApplicationException(f"Room {square.room_id} has no exit {direction}",
-                                       f"Room {square.room_id} has no exit {direction}")
+            raise ApplicationException(f"No exit",
+                                       f"Room {square.room.name} has no exit to the {direction.value}")
 
         # If no exit in that direction then raise error
         if destination == Map.EXIT_NONE:
-            raise ApplicationException(f"Room {square.room_id} has no exit {direction}",
-                                       f"Room {square.room_id} has no exit {direction}")
+            raise ApplicationException(f"No exit",
+                                       f"Room {square.room.name} has no exit to the {direction.value}")
 
         # Check if there is an exit in the specified direction
         elif destination == Map.EXIT_BLOCKED:
-            raise ApplicationException(f"Room {square.room_id} exit {direction} is blocked.",
-                                       f"Room {square.room_id} has no exit {direction}")
+            raise ApplicationException(f"Exit Blocked",
+                                       f"Room {square.room.name} exit to the {direction.value} is blocked")
 
         # Check if a card has been dealt in the specified direction
         elif destination == Map.EXIT_UNKNOWN:
-            raise ApplicationException(f"Moving {direction} - Map has no square in that direction.  Need to deal one.",
-                                       f"No square has been dealt {direction} of {self.current_xy}")
+            raise ApplicationException(f"No room drafted",
+                                       f"No square has been dealt {direction.value} of {self.current_xy}")
         # All good so let's move
         else:
             x, y = self.current_xy

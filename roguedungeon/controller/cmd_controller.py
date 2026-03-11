@@ -14,8 +14,11 @@ class RDCLI(cmd.Cmd):
         self.game = None
 
     def do_start(self, arg):
+        'Start the game'
         self.game = model.RDGame()
         self.game.initialise()
+        view.TextView.initialise()
+
         self.print()
 
     def run(self):
@@ -27,18 +30,23 @@ class RDCLI(cmd.Cmd):
         self.print()
 
     def do_N(self, args):
+        'Move North'
         self.move(model.Direction.NORTH)
 
     def do_S(self, args):
+        'Move South'
         self.move(model.Direction.SOUTH)
 
     def do_E(self, args):
+        'Move East'
         self.move(model.Direction.EAST)
 
     def do_W(self, args):
+        'Move West'
         self.move(model.Direction.WEST)
 
     def do_deal(self, arg):
+        'Deal a new room to fill a square on the Map'
 
         try:
             exits = self.game.get_adjacent_blank_squares()
@@ -52,22 +60,22 @@ class RDCLI(cmd.Cmd):
             self.game.deal_and_move(room.room_id, direction)
             self.print()
 
-        except Exception as e:
+        except BaseException as e:
             print(e)
 
     def move(self, direction):
         try:
             self.game.move(direction)
             self.print()
-        except Exception as e:
-            print(e)
+        except BaseException as e:
+            print(str(e))
 
     def print(self):
         try:
             square = self.game.get_current_map_square()
             v = view.MapSquareTextView(square)
             v.print()
-        except Exception as e:
+        except BaseException as e:
             print(f"Error {e}")
 
 

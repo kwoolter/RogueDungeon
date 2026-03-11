@@ -9,5 +9,5 @@ setup(
     author='keith',
     author_email='',
     description='',
-    install_requires=['pygame', 'pandas', 'numpy']
+    install_requires=['pygame', 'pandas', 'numpy', 'colorama']
 )

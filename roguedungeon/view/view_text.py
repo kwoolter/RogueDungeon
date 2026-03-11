@@ -1,6 +1,17 @@
 import roguedungeon.model as model
+import colorama
+from colorama import Fore, Back, Style
 
-class RoomTextView:
+class TextView:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def initialise():
+        colorama.init()
+
+
+class RoomTextView(TextView):
 
     def __init__(self, room : model.Room):
         self.room = room
@@ -15,14 +26,15 @@ class RoomTextView:
 
         print()
 
-class MapSquareTextView:
+class MapSquareTextView(TextView):
     def __init__(self, square : model.MapSquare):
         self.square = square
 
     def print(self):
-        print(f"Room {self.square.room_id}: {self.square.room.name}")
+        print(f"{Style.BRIGHT}{self.square.room.name} - {self.square.room.description}{Style.RESET_ALL}")
         for k,v in self.square.exits.items():
-            print(f"Exit {k.value} leads to {v.name}")
+            if v.room_id != model.Map.EXIT_NONE:
+                print(f"Exit {k.value} leads to {v.name}")
 
 
 

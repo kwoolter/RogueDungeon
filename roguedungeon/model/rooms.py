@@ -22,7 +22,7 @@ class Room:
         self.exits = {}
 
     def __str__(self):
-        text = f"{self.room_id}. {self.name}"
+        text = f"{self.name}"
         return text
 
     def add_exit(self, direction : Direction, valid : bool = True):

@@ -17,6 +17,9 @@ class Direction(Enum):
     EAST = "East"
     WEST = "West"
 
+    def __str__(self):
+        return self.value
+
 
 DIRECTION_REVERSE = {Direction.NORTH: Direction.SOUTH,
                      Direction.SOUTH: Direction.NORTH,
