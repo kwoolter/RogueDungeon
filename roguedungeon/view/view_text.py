@@ -64,9 +64,43 @@ class MapTextView(TextView):
 
     def print(self):
         if self.map is not None:
-            print(np.transpose(self.map.map))
+            banner = "Rogue Dungeon"
+            print(f"\n{Style.BRIGHT}{banner:^32}{Style.RESET_ALL}")
+
+            grid_fgbg = Fore.BLACK + Back.GREEN
+            blank_fgbg = Back.BLACK
+            room_fgbg = Back.LIGHTWHITE_EX + Fore.BLACK
+            header_fgbg = Back.LIGHTGREEN_EX + Fore.BLACK
+            current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK
+
+            header = "   " + header_fgbg
+            for x in range(1,6):
+                header += f"|{x:^4}"
+            header += "|" + Style.RESET_ALL
+
+            print(header)
+            for y in range(self.map.max_height - 1, -1, -1):
+                row = header_fgbg + f"{y+1:^3}" + grid_fgbg + "|"
+                for x in range(0, self.map.max_width):
+
+                    room_id = self.map.map[x,y]
+
+                    if room_id == 0:
+                        row += blank_fgbg + "    " + grid_fgbg + "|"
+                    else:
+                        if (x,y) == self.map.current_xy:
+                            row += current_fgbg
+                        else:
+                            row += room_fgbg
+                        row += f"{f'{room_id:02}':^4}" + grid_fgbg + "|"
+
+                row += header_fgbg + f"{y + 1:^3}" + Style.RESET_ALL
+                print(row)
+            print(header)
+
         else:
             print("No map to view")
+
 
 
 

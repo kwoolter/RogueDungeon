@@ -1,16 +1,16 @@
 RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West
 1,The Dungeon Entrance Hall,The start of the dungeon,Game,Standard,1,0,1,,1,1
-98,No Exit,No exit in that direction,Game,Standard,1,0,,,,
-99,Blocked,The exit that way is blocked,Game,Standard,1,0,,,,
-100,???,You don't know where that way leads,Game,Standard,1,0,,,,
-1000,The Dungeon Exit Hall,The end of the dungeon,Game,Standard,9,0,,1,1,1
+101,No Exit,No exit in that direction,Game,Standard,1,0,,,,
+102,Blocked,The exit that way is blocked,Game,Standard,1,0,,,,
+103,???,You don't know where that way leads,Game,Standard,1,0,,,,
+100,The Dungeon Exit Hall,The end of the dungeon,Game,Standard,9,0,,1,1,1
 2,East West Passageway,a long passageway,Passageway,Commonplace,1,1,,,1,1
 3,Crossroads,A crossroads of  tunnels,Passageway,Commonplace,1,1,1,1,1,1
 4,Nook Shop,A small shop in a nook,Shop,Standard,2,1,,,1,
 5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,1,1,,1,
 6,Cranny,A small hole in the rock,Room,Unusual,2,1,,1,,
 7,The General Store,A large store full of odds and ends,Shop,Unusual,5,1,,1,1,
-8,Treasure Room,A room full of locked treasure chests,Room,Unusual,5,1,,1,,1
+8,Treasure Room,A room full of locked treasure chests,Room,Unusual,5,1,1,,,1
 9,The Armory,A storeroom for weapons and armour,Room,Rare,8,1,1,,,1
 10,Tunnel,A tunnel carved into the rock,Passageway,Rare,8,1,,,1,1
 11,Cell,A prisoner cell,Room,Commonplace,2,1,,1,,
@@ -22,12 +22,12 @@ RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West
 17,The Grotto,,Room,Commonplace,1,1,,1,,
 18,Mine Shaft,,Room,Commonplace,1,1,,1,1,
 19,Dining Hall,,Room,Commonplace,1,1,1,1,1,1
-20,Larder,,Room,Commonplace,1,1,,,1,
+20,Larder,,Room,Commonplace,1,1,1,,1,
 21,Library,,Room,Commonplace,1,1,,1,,1
 22,Tool Store,,Room,Commonplace,1,1,1,,,
 23,Throne Room,,Room,Rare,7,1,,1,1,1
 24,The Chasm,A shaky rope bridge spans a dark chasm,Passageway,Commonplace,1,1,1,1,,
-25,Barracks,,Room,Standard,1,1,,,1,1
+25,Barracks,,Room,Standard,1,1,1,,1,1
 26,Laboratory of the Sorceror,,Room,Standard,1,1,,,1,1
 27,Warlock Experimentarium,,Room,Standard,1,1,,,1,1
 28,The Ossary,,Evil,Commonplace,3,1,1,1,1,1
@@ -41,3 +41,4 @@ RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West
 36,The Hall of the Dragon,,Room,Rare,7,1,1,1,,
 37,The Dwarven Forge,,Room,Rare,6,1,,1,1,
 38,The Furnace Room,,Room,Rare,6,1,,,,1
+999,Total,,Game,Commonplace,1,0,18,20,20,20

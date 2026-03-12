@@ -59,8 +59,9 @@ class RDGame:
 
         if len(results) < 3:
             print(f"Deal result only get {len(results)} matching cards")
-
-        rooms = random.sample(results, k=3)
+            rooms = results
+        else:
+            rooms = random.sample(results, k=3)
 
         return rooms
 
