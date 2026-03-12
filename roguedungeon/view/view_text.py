@@ -1,4 +1,5 @@
 import roguedungeon.model as model
+import numpy as np
 import colorama
 from colorama import Fore, Back, Style
 from colorama import just_fix_windows_console
@@ -56,6 +57,16 @@ class MapSquareTextView(TextView):
                 print(f"Exit {k.value} is unexplored")
             else:
                 print(f"Exit {k.value} leads to {v.name}")
+
+class MapTextView(TextView):
+    def __init__(self, map : model.Map):
+        self.map = map
+
+    def print(self):
+        if self.map is not None:
+            print(np.transpose(self.map.map))
+        else:
+            print("No map to view")
 
 
 

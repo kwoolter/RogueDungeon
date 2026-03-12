@@ -29,6 +29,13 @@ class RDCLI(cmd.Cmd):
         self.game.print()
         self.print()
 
+    def do_map(self, arg):
+        'Print status of game'
+
+        v = view.MapTextView(self.game.map)
+        v.print()
+
+
     def do_N(self, args):
         'Move North'
         self.move(model.Direction.NORTH)
@@ -53,7 +60,7 @@ class RDCLI(cmd.Cmd):
             direction = pick("Direction", list(exits))
             print(f"Opening the door {direction}...")
             opp_exit = model.DIRECTION_REVERSE[direction]
-            rooms = self.game.deck.get_rooms_by_exit(opp_exit)
+            rooms = self.game.deal(opp_exit)
             room = pick("Room", rooms)
             print(f"Dealing {room}")
 

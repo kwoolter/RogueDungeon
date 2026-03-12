@@ -1,12 +1,15 @@
 from .rooms import *
 from .maps import *
 from .card_deck import RoomCardDeck
+import random
 
 
 class RDGame:
 
     def __init__(self):
         self.map = None
+        self.moves = 0
+        self.rooms = 0
 
     def initialise(self):
 
@@ -45,7 +48,19 @@ class RDGame:
 
     def deal(self, direction):
 
-        rooms = self.deck.get_rooms_by_exit(direction)
+        self.deck.current_x = self.map.current_x
+        self.deck.current_y = self.map.current_y
+        self.deck.mandatory_exit = direction
+        self.deck.max_rank = self.map.current_y + 1
+        self.deck.max_rarity = RoomFactory.INT_TO_RARITY[random.randint(1, max(RoomFactory.RARITY_TO_INT.values()))]
+        self.deck.max_exits = random.randint(1, 4)
+
+        results = self.deck.get_matching_rooms()
+
+        if len(results) < 3:
+            print(f"Deal result only get {len(results)} matching cards")
+
+        rooms = random.sample(results, k=3)
 
         return rooms
 
