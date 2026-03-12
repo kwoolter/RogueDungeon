@@ -6,6 +6,7 @@ import logging
 
 class RDCLI(cmd.Cmd):
     intro = "Welcome to the Rogue Dungeon CLI.\n" \
+            "Type 'start' to get playing the game.\n" \
             "Type 'help' to see available commands.\n"
     prompt = "What next?"
 
@@ -14,58 +15,77 @@ class RDCLI(cmd.Cmd):
         self.game = None
 
     def do_start(self, arg):
-        'Start the game'
+        '''Start the game'''
         self.game = model.RDGame()
         self.game.initialise()
         view.TextView.initialise()
 
         self.print()
 
+    def do_quit(self, arg):
+        '''Finish the current game'''
+
+        if confirm("Are you sure you want to quit?") == True:
+            v = view.MapTextView(self.game.map)
+            v.print()
+            print(f"\nRooms = {self.game.map.rooms}\nMoves = {self.game.map.moves}")
+            return True
+        else:
+            print("Let's keep going...")
+            return False
+
+
     def run(self):
         self.cmdloop()
 
     def do_status(self, arg):
-        'Print status of game'
+        '''Print the status of game'''
         self.game.print()
         self.print()
 
     def do_map(self, arg):
-        'Print status of game'
+        '''Print status of game'''
 
         v = view.MapTextView(self.game.map)
         v.print()
+        print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
 
+    def do_look(self, arg):
+        '''View the current room'''
+        self.print()
 
     def do_N(self, args):
-        'Move North'
+        '''Move North'''
         self.move(model.Direction.NORTH)
 
     def do_S(self, args):
-        'Move South'
+        '''Move South'''
         self.move(model.Direction.SOUTH)
 
     def do_E(self, args):
-        'Move East'
+        '''Move East'''
         self.move(model.Direction.EAST)
 
     def do_W(self, args):
-        'Move West'
+        '''Move West'''
         self.move(model.Direction.WEST)
 
     def do_deal(self, arg):
-        'Deal a new room to fill a square on the Map'
+        '''Deal a room to explore a new square on the Map'''
 
         try:
             exits = self.game.get_adjacent_blank_squares()
             direction = pick("Direction", list(exits))
-            print(f"Opening the door {direction}...")
-            opp_exit = model.DIRECTION_REVERSE[direction]
-            rooms = self.game.deal(opp_exit)
-            room = pick("Room", rooms)
-            print(f"Dealing {room}")
 
-            self.game.deal_and_move(room.room_id, direction)
-            self.print()
+            if direction is not None:
+                print(f"Exploring {direction}...")
+                opp_exit = model.DIRECTION_REVERSE[direction]
+                rooms = self.game.deal(opp_exit)
+                room = pick("Room", rooms, cancel=False)
+                print(f"Dealing {room}")
+
+                self.game.deal_and_move(room.room_id, direction)
+                self.print()
 
         except BaseException as e:
             print(e)
@@ -105,7 +125,7 @@ def confirm(question: str):
 
 # Function to present a menu to pick an object from a list of objects
 # auto_pick means if the list has only one item then automatically pick that item
-def pick(object_type: str, objects: list, auto_pick: bool = False):
+def pick(object_type: str, objects: list, cancel = True, auto_pick: bool = False):
     selected_object = None
     choices = len(objects)
     vowels = "AEIOU"
@@ -114,7 +134,7 @@ def pick(object_type: str, objects: list, auto_pick: bool = False):
     else:
         a_or_an = "a"
 
-    # If the list of objects is no good the raise an exception
+    # If the list of objects is no good then raise an exception
     if objects is None or choices == 0:
         raise (Exception("No %s to pick from." % object_type))
 
@@ -132,7 +152,8 @@ def pick(object_type: str, objects: list, auto_pick: bool = False):
             print("\t%i) %s" % (i + 1, str(objects[i])))
 
         # Along with an extra option to cancel selection
-        print("\t%i) Cancel" % (choices + 1))
+        if cancel is True:
+            print("\t%i) Cancel" % (choices + 1))
 
         # Get the user's selection and validate it
         choice = input("%s?" % object_type)
@@ -142,7 +163,7 @@ def pick(object_type: str, objects: list, auto_pick: bool = False):
             if 0 < choice <= choices:
                 selected_object = objects[choice - 1]
                 logging.info("pick(): You chose %s %s." % (object_type, str(selected_object)))
-            elif choice == (choices + 1):
+            elif choice == (choices + 1) and cancel is True:
                 break
             else:
                 print("Invalid choice '%i' - try again." % choice)

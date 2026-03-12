@@ -34,7 +34,7 @@ class Map:
                          Direction.EAST: (1, 0)}
 
     ENTRANCE = 1
-    EXIT_END = 100
+    EXIT_END = 99
     EXIT_NONE = 101
     EXIT_BLOCKED = 102
     EXIT_UNKNOWN = 103
