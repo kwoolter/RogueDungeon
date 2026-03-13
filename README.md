@@ -10,10 +10,11 @@ A random dungeon card game loosely based on Blue Prince.
 * `quit` - end the game
 
 ## Code
-The program consists of teh following packages:-
+The program consists of the following packages:-
+* `roguedungeon` - the main package with the following sub-packages
 * `model` - the game and game rules
 * `view` - displays formatted text views of the game (model) 
 * `controller` - runs the CLI interface
 
 ### Model
-`model\data\Rooms.csv` contains the room templates data that drive the game.
+`model\data\Rooms.csv` [file](https://raw.githubusercontent.com/kwoolter/RogueDungeon/refs/heads/master/roguedungeon/model/data/Rooms.csv) contains the room templates data that drive the game.
