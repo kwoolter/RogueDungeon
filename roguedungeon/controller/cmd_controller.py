@@ -13,25 +13,40 @@ class RDCLI(cmd.Cmd):
     def __init__(self):
         super().__init__(completekey='tab')
         self.game = None
+        self.game_view = None
 
     def do_start(self, arg):
         '''Start the game'''
+
+        # Create and initialise the game
         self.game = model.RDGame("Rogue Dungeon")
         self.game.initialise()
+
+        # Initialise the game view and print
         view.TextView.initialise()
-        v = view.GameTextView(self.game)
-        v.print()
+        self.game_view = view.GameTextView(self.game)
+        self.game_view.print()
         self.print()
 
     def do_quit(self, arg):
         '''Finish the current game'''
 
+        # Check if the player wants to quit
         if confirm("Are you sure you want to quit?") == True:
-            v = view.GameTextView(self.game)
-            v.print()
+
+            # Run the game end
+            self.game.end()
+
+            # Print the game status
+            self.game_view.print()
+
+            # Print the final map
             v = view.MapTextView(self.game.map)
             v.print()
+
+            # return True to exit Cmd the loop
             return True
+
         else:
             print("Let's keep going...")
             return False
@@ -42,16 +57,26 @@ class RDCLI(cmd.Cmd):
 
     def do_status(self, arg):
         '''Print the status of game'''
-        v = view.GameTextView(self.game)
-        v.print()
+        try:
 
+            if self.game is not None:
+                v = view.GameTextView(self.game)
+                v.print()
+
+        except BaseException as e:
+            print(e)
 
     def do_map(self, arg):
-        '''Print status of game'''
+        '''Print the game map'''
+        try:
+            # Set up a view ofthe game map and print it
+            v = view.MapTextView(self.game.map)
+            v.print()
+            print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
 
-        v = view.MapTextView(self.game.map)
-        v.print()
-        print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
+        except BaseException as e:
+            print(e)
+
 
     def do_look(self, arg):
         '''View the current room'''
@@ -77,17 +102,29 @@ class RDCLI(cmd.Cmd):
         '''Deal a room to explore a new square on the Map'''
 
         try:
+
+            # Get the list of exits in the room that have yet to be explored
             exits = self.game.get_adjacent_blank_squares()
+
+            # Get the player to pick the direction that they wish to explore
             direction = pick("Direction", list(exits))
 
+            # If they picked a direction...
             if direction is not None:
                 print(f"Exploring {direction}...")
+
+                # Deal some cards that have an exit in the opposite direction
                 opp_exit = model.DIRECTION_REVERSE[direction]
                 rooms = self.game.deal(opp_exit)
-                room = pick("Room", rooms, cancel=False)
-                print(f"Dealing {room}")
 
+                # Pick a room card - no cancels allowed, they have to pick a card
+                room = pick("Room", rooms, cancel=False)
+
+                # Deal the selected card and move to the new location
+                print(f"Dealing {room}")
                 self.game.deal_and_move(room.room_id, direction)
+
+                # Print the new location
                 self.print()
 
         except BaseException as e:
@@ -95,9 +132,11 @@ class RDCLI(cmd.Cmd):
 
     def move(self, direction):
         try:
+            # Move the the specified direction and print the new location
             self.game.move(direction)
             self.print()
 
+            # Check if the move resulted in teh player completing the game
             if self.game.state == model.RDGame.STATE_VICTORY:
                 self.game_over()
 

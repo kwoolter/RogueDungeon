@@ -112,5 +112,8 @@ class RDGame:
         if self.map.current_room_id == Map.EXIT_END:
             self.state = RDGame.STATE_VICTORY
 
+    def end(self):
+        self.state = RDGame.STATE_GAME_OVER
+
 
 
