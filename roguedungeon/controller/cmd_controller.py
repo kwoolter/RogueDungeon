@@ -16,19 +16,21 @@ class RDCLI(cmd.Cmd):
 
     def do_start(self, arg):
         '''Start the game'''
-        self.game = model.RDGame()
+        self.game = model.RDGame("Rogue Dungeon")
         self.game.initialise()
         view.TextView.initialise()
-
+        v = view.GameTextView(self.game)
+        v.print()
         self.print()
 
     def do_quit(self, arg):
         '''Finish the current game'''
 
         if confirm("Are you sure you want to quit?") == True:
+            v = view.GameTextView(self.game)
+            v.print()
             v = view.MapTextView(self.game.map)
             v.print()
-            print(f"\nRooms = {self.game.map.rooms}\nMoves = {self.game.map.moves}")
             return True
         else:
             print("Let's keep going...")
@@ -40,8 +42,9 @@ class RDCLI(cmd.Cmd):
 
     def do_status(self, arg):
         '''Print the status of game'''
-        self.game.print()
-        self.print()
+        v = view.GameTextView(self.game)
+        v.print()
+
 
     def do_map(self, arg):
         '''Print status of game'''
@@ -94,8 +97,19 @@ class RDCLI(cmd.Cmd):
         try:
             self.game.move(direction)
             self.print()
+
+            if self.game.state == model.RDGame.STATE_VICTORY:
+                self.game_over()
+
         except BaseException as e:
             print(str(e))
+
+    def game_over(self):
+        if self.game.state == model.RDGame.STATE_VICTORY:
+            print(f"Congratulations - you completed {self.game.name}")
+
+        v = view.GameTextView(self.game)
+        v.print()
 
     def print(self):
         try:

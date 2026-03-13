@@ -25,10 +25,22 @@ class TextView:
         colorama.init()
         just_fix_windows_console()
 
+class GameTextView(TextView):
+    def __init__(self, game : model.RDGame):
+        super().__init__()
+        self.game = game
+
+    def print(self):
+        banner = self.game.name
+        print(f"\n{Style.BRIGHT}{banner}{Style.RESET_ALL}")
+        print(f"State: {self.game.state}")
+        print(f"Rooms: {self.game.rooms}")
+        print(f"Moves: {self.game.moves}")
 
 class RoomTextView(TextView):
 
     def __init__(self, room : model.Room):
+        super().__init__()
         self.room = room
 
     def print(self):
@@ -43,6 +55,7 @@ class RoomTextView(TextView):
 
 class MapSquareTextView(TextView):
     def __init__(self, square : model.MapSquare):
+        super().__init__()
         self.square = square
 
     def print(self):
@@ -60,6 +73,7 @@ class MapSquareTextView(TextView):
 
 class MapTextView(TextView):
     def __init__(self, map : model.Map):
+        super().__init__()
         self.map = map
 
     def print(self):

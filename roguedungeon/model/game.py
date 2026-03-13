@@ -6,10 +6,29 @@ import random
 
 class RDGame:
 
-    def __init__(self):
+    STATE_LOADED = "Loaded"
+    STATE_PLAYING = "Playing"
+    STATE_VICTORY = "Victory"
+    STATE_GAME_OVER = "Game Over"
+
+    def __init__(self, name : str):
+        self.name = name
         self.map = None
-        self.moves = 0
-        self.rooms = 0
+        self.state = RDGame.STATE_LOADED
+
+    @property
+    def rooms(self):
+        if self.map is not None:
+            return self.map.rooms
+        else:
+            return 0
+
+    @property
+    def moves(self):
+        if self.map is not None:
+            return self.map.moves
+        else:
+            return 0
 
     def initialise(self):
 
@@ -20,14 +39,18 @@ class RDGame:
         self.map = Map("Rogue Dungeon")
         self.map.initialise()
 
+        self.state = RDGame.STATE_PLAYING
+
     @property
     def current_room_id(self):
         return self.map.current_room_id
 
     def print(self):
+        print(f"{self.name} ({self.state})")
 
-        current_room = RoomFactory.get_room_info(self.current_room_id)
-        current_room.print()
+        if self.state == RDGame.STATE_PLAYING:
+            current_room = RoomFactory.get_room_info(self.current_room_id)
+            current_room.print()
 
     def get_current_room(self):
         return RoomFactory.get_room_info(self.current_room_id)
@@ -37,6 +60,10 @@ class RDGame:
         return square
 
     def get_adjacent_blank_squares(self):
+
+        if self.state != RDGame.STATE_PLAYING:
+            raise ApplicationException("Cannot do that this time", f"{self.name} game in state {self.state}")
+
         square =  self.map.get_map_square_at()
         directions = []
         for k,v in square.exits.items():
@@ -47,6 +74,9 @@ class RDGame:
 
 
     def deal(self, direction):
+
+        if self.state != RDGame.STATE_PLAYING:
+            raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
 
         self.deck.current_x = self.map.current_x
         self.deck.current_y = self.map.current_y
@@ -74,7 +104,13 @@ class RDGame:
 
 
     def move(self, direction):
+        if self.state != RDGame.STATE_PLAYING:
+            raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
+
         self.map.move(direction)
+
+        if self.map.current_room_id == Map.EXIT_END:
+            self.state = RDGame.STATE_VICTORY
 
 
 
