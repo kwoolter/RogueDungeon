@@ -6,10 +6,12 @@ import random
 
 class RDGame:
 
+    # Define game states
     STATE_LOADED = "Loaded"
     STATE_PLAYING = "Playing"
     STATE_VICTORY = "Victory"
     STATE_GAME_OVER = "Game Over"
+
 
     def __init__(self, name : str):
         self.name = name
@@ -85,6 +87,8 @@ class RDGame:
         self.deck.max_rarity = RoomFactory.INT_TO_RARITY[random.randint(1, max(RoomFactory.RARITY_TO_INT.values()))]
         self.deck.max_exits = random.randint(1, 4)
 
+        self.pre_deal_processing()
+
         results = self.deck.get_matching_rooms()
 
         if len(results) < 3:
@@ -95,12 +99,32 @@ class RDGame:
 
         return rooms
 
+    def pre_deal_processing(self):
+        """Put any logic here that you want to kick-in before the deal is made"""
+        pass
+
+    def post_deal_processing(self):
+        """Put any logic here that you want to kick-in once a new room card has been selected """
+
+        # Get details of teh current room
+        room_id = self.map.current_room_id
+        room_trigger = RoomFactory.get_room_info(room_id)
+
+        # Process rooms that when dealt make other rooms visible
+        unlocks_room_id = RoomFactory.UNLOCKS_ROOM.get(room_id, 0)
+        if unlocks_room_id > 0:
+            RoomFactory.set_room_property(unlocks_room_id, RoomFactory.ROOM_VISIBLE_PROPERTY, True)
+            room = RoomFactory.get_room_info(unlocks_room_id)
+            print(f"You explored {room_trigger.name} which makes {room.name} available")
+
+
     def deal_and_move(self, room_id, direction):
 
         cx, cy = self.map.current_xy
         x,y = self.map.add_xy(cx, cy, direction)
         self.map.set_room_at(x,y,room_id)
         self.map.move(direction)
+        self.post_deal_processing()
 
 
     def move(self, direction):

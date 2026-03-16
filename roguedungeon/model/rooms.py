@@ -11,7 +11,8 @@ class Room:
                  room_type: str,
                  rarity: str,
                  min_rank: int,
-                 visible: bool):
+                 visible: bool,
+                 unlock_room_id: int):
 
         self.room_id = room_id
         self.name = name
@@ -20,6 +21,7 @@ class Room:
         self.rarity = rarity
         self.min_rank = min_rank
         self.visible = visible
+        self.unlock_room_id = unlock_room_id
         self.exits = {}
 
     def __str__(self):
@@ -48,6 +50,8 @@ class Room:
 
 class RoomFactory:
     rooms = None
+    UNLOCKS_ROOM = {}
+    UNLOCKED_BY_ROOM = {}
 
     RARITY_TO_INT = {
         "Commonplace": 1,
@@ -69,6 +73,8 @@ class RoomFactory:
     EXIT_SOUTH = "South"
     EXIT_EAST = "East"
     EXIT_WEST = "West"
+    UNLOCKED_BY = "UnlockedByRoomID"
+
     EXITS = [EXIT_NORTH, EXIT_SOUTH, EXIT_EAST, EXIT_WEST]
 
     def __init__(self):
@@ -90,15 +96,36 @@ class RoomFactory:
         df = RoomFactory.rooms
         df.set_index("RoomID", drop=True, inplace=True)
 
-        # Change Visible and Exit direction columns to bools
+        # Change some columns to booleans
         boolean_columns = [RoomFactory.ROOM_VISIBLE_PROPERTY]
         boolean_columns.append(RoomFactory.EXITS)
 
         for d in boolean_columns:
             df[d] = df[d] >= 1
 
+        # Add new column that totals the number of exists
         df["ExitCount"] = df[RoomFactory.EXITS].sum(axis=1)
+
+        # Tidy up the column that is used to specify if another room needs to be dealt to reveal this room
+        df[RoomFactory.UNLOCKED_BY] = df[RoomFactory.UNLOCKED_BY].fillna(0).astype('int64')
+
+        # Map the rarity text string to an int
         df["RarityInt"] = df["Rarity"].map(RoomFactory.RARITY_TO_INT)
+
+        print(f"{len(df.index)} rooms loaded.")
+
+        # Build maps of which rooms unlock another room
+        RoomFactory.UNLOCKED_BY_ROOM = df[df[RoomFactory.UNLOCKED_BY]>0][RoomFactory.UNLOCKED_BY].to_dict()
+
+        print(f"Rooms unlocked by {RoomFactory.UNLOCKED_BY_ROOM}")
+
+        RoomFactory.UNLOCKS_ROOM = {v: k for k, v in RoomFactory.UNLOCKED_BY_ROOM.items()}
+
+        print(f"Room unlocks {RoomFactory.UNLOCKS_ROOM}")
+
+
+
+
 
     @staticmethod
     def get_room_info(room_id: int):
@@ -120,7 +147,8 @@ class RoomFactory:
         room_type = row["Type"]
         rarity = row["Rarity"]
         min_rank = row["MinRank"]
-        visible = row["Visible"]
+        visible = row[RoomFactory.ROOM_VISIBLE_PROPERTY]
+        unlock_room_id = row[RoomFactory.UNLOCKED_BY]
 
         new_room = Room(room_id=room_id,
                         name=name,
@@ -128,7 +156,8 @@ class RoomFactory:
                         room_type=room_type,
                         rarity=rarity,
                         min_rank=min_rank,
-                        visible=visible)
+                        visible=visible,
+                        unlock_room_id=unlock_room_id)
 
         for direction in Direction:
             is_exit = row[direction.value]

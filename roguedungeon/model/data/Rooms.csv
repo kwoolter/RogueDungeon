@@ -1,47 +1,56 @@
-RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West,Exits
-1,The Dungeon Entrance Hall,The start of the dungeon,Game,Standard,1,0,1,,1,1,3
-2,East West Passageway,A long passageway,Passageway,Commonplace,1,1,,,1,1,2
-3,Crossroads,A crossroads of  tunnels,Passageway,Standard,1,1,1,1,1,1,4
-4,Nook Shop,A small shop in a nook,Shop,Standard,2,1,,,1,,1
-5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,1,,1,1,,2
-6,Cranny,A small hole in the rock,Room,Unusual,2,1,,1,,,1
-7,The General Store,A large store full of odds and ends,Shop,Unusual,5,1,,1,1,,2
-8,Treasure Room,A room full of locked treasure chests,Room,Rare,5,1,1,,,1,2
-9,The Armory,A storeroom for weapons and armour,Room,Rare,8,1,1,,,1,2
-10,Tunnel,A tunnel carved into the rock,Passageway,Rare,8,1,,,1,1,2
-11,Cell,A prisoner cell,Room,Commonplace,2,1,,1,,,1
-12,The Crypt of Eternity,A dark crypt full of stone coffins,Evil,Commonplace,3,1,1,1,,,2
-13,The Shrine of The Warrior,A shrine with a large statue of The Warrior,Good,Commonplace,4,1,,1,,1,2
-14,The Oubliette,A small cell where prisoners are forgotten ,Room,Commonplace,2,1,,,,1,1
-15,The Shrine of Magika,A shrine that hums with magical power,Good,Unusual,3,1,,1,,1,2
-16,The Crypt of The Undead,A dark and cold crypt,Evil,Unusual,2,1,1,,1,,2
-17,The Grotto,A cave with a shimmering pool or blue water,Room,Commonplace,3,1,,1,,,1
-18,Mine Shaft,A small room with a deep mine shaft descending into the depths below,Room,Commonplace,1,1,,1,1,,2
-19,Dining Hall,A long room with a dining table at the centre,Room,Commonplace,1,1,1,1,1,1,4
-20,Larder,A small room with some piece of rotting food,Room,Commonplace,1,1,1,,1,,2
-21,Library,A library full of old books,Room,Commonplace,3,1,,1,,1,2
-22,Tool Store,A room full of rusty old tools,Room,Commonplace,1,1,1,,,,1
-23,Throne Room,A basic stone throne room,Room,Rare,8,1,,1,1,1,3
-24,The Chasm,A shaky rope bridge spans a dark chasm,Passageway,Commonplace,1,1,1,1,,,2
-25,Barracks,A room filled with basic bunks,Room,Standard,1,1,1,,1,1,3
-26,Laboratory of the Sorceror,An abandoned laboratory,Room,Unusual,4,1,,,1,1,2
-27,Warlock Experimentarium,A room filled with the remains of unholy experiments,Room,Unusual,4,1,,,1,1,2
-28,The Ossary,A room filled with jars of old bones,Evil,Standard,3,1,1,1,1,1,4
-29,Cathedral Cavern,A huge cavern,Room,Standard,3,1,1,1,1,1,4
-30,The Alcove,A small room cut into the rock,Room,Commonplace,4,1,1,,,,1
-31,Tomb of the Ancients,A tomb lined with stone coffins,Room,Unusual,5,1,,,1,,1
-32,The Altar of Sacrifice,A bloodied altar,Evil,Unusual,5,1,,1,,,1
-33,The Apprentices Dormitory,A basic dormitory,Room,Unusual,5,1,,1,,,1
-34,The Master Wizards Quarters,A grand wooden panelled room,Room,Rare,5,1,1,,,,1
-35,The Winding Stairs,A winding stone staircase,Room,Commonplace,7,1,1,,,1,2
-36,The Hall of the Dragon,A hall lined with stone dragon heads,Room,Rare,7,1,1,1,,,2
-37,The Dwarven Forge,An ancient forge for crafting dwarven weapons and armour,Room,Rare,6,1,,1,1,,2
-38,The Furnace Room,A huge abandoned furnace,Room,Rare,6,1,,,,1,1
-99,The Dungeon Exit Hall,The end of the dungeon,Game,Commonplace,9,0,,1,1,1,3
-101,No Exit,No exit in that direction,Game,Standard,1,0,,,,,0
-102,Blocked,The exit that way is blocked,Game,Standard,1,0,,,,,0
-103,???,You don't know where that way leads,Game,Standard,1,0,,,,,0
-39,The Orc Kitchen,A small kitchen full of inedible dishes,Room,Commonplace,1,1,,1,1,,2
-40,The Toilet,An small room full of unpleasant odours,Room,Commonplace,1,1,,1,,1,2
-41,The Stone Baths,A room of stone baths filled with freezing cold water,Room,Commonplace,1,1,1,1,,,2
-42,The Corridor,A narrow corridor,Passageway,Commonplace,1,1,1,1,,,2
+RoomID,Name,Description,Type,Rarity,MinRank,Visible,North,South,East,West,Exits,UnlockedByRoomID
+1,The Dungeon Entrance Hall,The start of the dungeon,Game,Standard,1,0,1,,1,1,3,
+2,East West Passageway,A long passageway,Passageway,Commonplace,1,1,,,1,1,2,
+3,Crossroads,A crossroads of  tunnels,Passageway,Standard,1,1,1,1,1,1,4,
+4,The Nook Shop,A small shop in a nook,Shop,Standard,2,0,,,1,,1,
+5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,1,,1,1,,2,
+6,A Rock Cranny,A small hole in the rock,Room,Unusual,2,1,,1,,,1,
+7,The General Store,A large store full of odds and ends,Shop,Unusual,5,1,,1,1,,2,
+8,Treasure Room,A room full of locked treasure chests,Room,Rare,5,1,1,,,1,2,
+9,The Armory,A storeroom for weapons and armour,Room,Rare,8,1,1,,,1,2,
+10,An East West Tunnel,A tunnel carved into the rock,Passageway,Rare,8,1,,,1,1,2,
+11,The Cell,A prisoner cell,Room,Commonplace,2,1,,1,,,1,
+12,The Crypt of Eternity,A dark crypt full of stone coffins,Evil,Commonplace,3,1,1,1,,,2,
+13,The Shrine of The Warrior,A shrine with a large statue of The Warrior,Good,Commonplace,4,1,,1,,1,2,
+14,The Oubliette,A small cell where prisoners are forgotten ,Room,Commonplace,2,1,,,,1,1,
+15,The Shrine of Magika,A shrine that hums with magical power,Good,Unusual,3,1,,1,,1,2,
+16,The Crypt of The Undead,A dark and cold crypt,Evil,Unusual,2,0,1,,1,,2,43
+17,The Grotto,A cave with a shimmering pool or blue water,Room,Commonplace,3,1,,1,,,1,
+18,The Mine Shaft,A small room with a deep mine shaft descending into the depths below,Room,Commonplace,1,1,,1,1,,2,
+19,The Dining Hall,A long room with a dining table at the centre,Room,Commonplace,1,1,1,1,1,1,4,
+20,The Larder,A small room with some piece of rotting food,Room,Commonplace,1,1,1,,1,,2,
+21,The Library,A library full of old books,Room,Commonplace,3,1,,1,,1,2,
+22,The Tool Store,A room full of rusty old tools,Room,Commonplace,1,0,1,,,,1,45
+23,The Throne Room,A basic stone throne room,Room,Rare,8,1,,1,1,1,3,
+24,The Chasm,A shaky rope bridge spans a dark chasm,Passageway,Commonplace,1,1,1,1,,,2,
+25,The Barracks,A room filled with basic bunks,Room,Standard,1,1,1,,1,1,3,
+26,The Laboratory of the Sorceror,An abandoned laboratory,Room,Unusual,4,1,,,1,1,2,
+27,The Warlock Experimentarium,A room filled with the remains of unholy experiments,Room,Unusual,4,1,,,1,1,2,
+28,The Ossary,A room filled with jars of old bones,Evil,Standard,3,1,1,1,1,1,4,
+29,The Cathedral Cavern,A huge cavern,Room,Standard,3,1,1,1,1,1,4,
+30,The Alcove,A small room cut into the rock,Room,Commonplace,4,1,1,,,,1,
+31,Tomb of the Ancients,A tomb lined with stone coffins,Room,Unusual,5,1,,,1,,1,
+32,The Altar of Sacrifice,A bloodied altar,Evil,Unusual,5,1,,1,,,1,
+33,The Apprentices Dormitory,A basic dormitory,Room,Unusual,5,1,,1,,,1,
+34,The Master Wizards Quarters,A grand wooden panelled room,Room,Rare,5,1,1,,,,1,
+35,The Winding Stairs,A winding stone staircase,Room,Commonplace,7,1,1,,,1,2,
+36,The Hall of the Dragon,A hall lined with stone dragon heads,Room,Rare,7,1,1,1,,,2,
+37,The Dwarven Forge,An ancient forge for crafting dwarven weapons and armour,Room,Rare,6,1,,1,1,,2,
+38,The Furnace Room,A huge abandoned furnace,Room,Rare,6,1,,,,1,1,
+39,The Orc Kitchen,A small kitchen full of inedible dishes,Room,Commonplace,1,0,,1,1,,2,19
+40,The Toilet,An small room full of unpleasant odours,Room,Commonplace,1,1,,1,,1,2,
+41,The Stone Baths,A room of stone baths filled with freezing cold water,Room,Commonplace,1,1,1,1,,,2,
+42,A Corridor,A narrow corridor,Passageway,Commonplace,1,1,1,1,,,2,
+43,A Dead End,A seemingly useless dead end,Room,Commonplace,1,1,,,,1,1,
+44,The Embalming Room,A room littered with bandages and noxious chemicals,Room,Commonplace,1,1,1,,,1,2,
+45,The Workshop,A small workshop for crafting traps and devices,Room,Standard,1,1,,,1,1,2,
+46,The Sewer,A tunnel flooded with sewerage water,Room,Standard,1,0,,1,1,,2,40
+47,The Spider Cavern,A large cavern hung with cob webs,Room,Standard,1,1,,1,1,,2,
+48,The Toxic Pools,A room full of bubbling pools of poisonous liquids,Room,Unusual,3,1,1,,1,,2,50
+49,The Underground Spring,Clear water bubbles from a crack in the rock,Room,Unusual,3,1,1,1,1,,3,
+50,The Witches Hut,A ramshackle wooden hut,Room,Unusual,4,0,1,1,1,,3,48
+51,The Underground Docks,A rotten wooden dock on the edge of a dark underground lake,Room,Rare,5,1,1,,1,,2,
+99,The Dungeon Exit Hall,The end of the dungeon,Game,Commonplace,9,0,,1,1,1,3,
+101,No Exit,No exit in that direction,Game,Standard,1,0,,,,,0,
+102,Blocked,The exit that way is blocked,Game,Standard,1,0,,,,,0,
+103,???,You don't know where that way leads,Game,Standard,1,0,,,,,0,

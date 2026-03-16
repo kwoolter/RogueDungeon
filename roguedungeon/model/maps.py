@@ -28,11 +28,14 @@ class MapSquare:
 
 
 class Map:
+
+    # Define vectors for how x,y coords change based on direction
     DIRECTION_VECTORS = {Direction.NORTH: (0, 1),
                          Direction.SOUTH: (0, -1),
                          Direction.WEST: (-1, 0),
                          Direction.EAST: (1, 0)}
 
+    # Special Game reserved rooms
     ENTRANCE = 1
     EXIT_END = 99
     EXIT_NONE = 101
