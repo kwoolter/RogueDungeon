@@ -130,9 +130,19 @@ class RDCLI(cmd.Cmd):
         except BaseException as e:
             print(e)
 
+    def do_get(self, args):
+        """ Get a resource from the current room"""
+        try:
+            resources = self.game.get_square_resources()
+            resource = pick("Item", resources)
+            self.game.take_resource(resource)
+
+        except BaseException as e:
+            print(e)
+
     def move(self, direction):
         try:
-            # Move the the specified direction and print the new location
+            # Move in the specified direction and print the new location
             self.game.move(direction)
             self.print()
 

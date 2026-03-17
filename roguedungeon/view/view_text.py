@@ -14,6 +14,13 @@ ROOM_COLOURS = {
     "Evil": Fore.BLACK + Back.LIGHTRED_EX
 }
 
+RESOURCE_COLOURS = {
+    model.Resource.GOLD : Back.YELLOW + Fore.BLACK,
+    model.Resource.GEMS : Back.MAGENTA + Fore.BLACK,
+    model.Resource.FOOD : Back.BLACK + Fore.RED,
+    model.Resource.KEYS : Back.WHITE + Fore.BLACK
+}
+
 ROOM_COLOURS_DEFAULT = Fore.WHITE + Back.BLACK
 
 class TextView:
@@ -33,9 +40,13 @@ class GameTextView(TextView):
     def print(self):
         banner = self.game.name
         print(f"\n{Style.BRIGHT}{banner}{Style.RESET_ALL}")
-        print(f"State: {self.game.state}")
-        print(f"Rooms: {self.game.rooms}")
-        print(f"Moves: {self.game.moves}")
+
+        print("You have: ", end="")
+        for k, v in self.game.resources.items():
+            print(f"{RESOURCE_COLOURS[k]}{k.value}:{v}{Style.RESET_ALL}", end=" ")
+        print()
+
+        print(f"State: {self.game.state}  |  Rooms: {self.game.rooms}  |  Moves: {self.game.moves}\n")
 
 class RoomTextView(TextView):
 
@@ -70,6 +81,13 @@ class MapSquareTextView(TextView):
                 print(f"Exit {k.value} is unexplored")
             else:
                 print(f"Exit {k.value} leads to {v.name}")
+
+        if len(self.square.resources.values())>0:
+            print("You can see: ", end="")
+            for k,v in self.square.resources.items():
+                if v > 0:
+                    print(f"{RESOURCE_COLOURS[k]}{k.value}:{v}{Style.RESET_ALL}", end=" ")
+            print()
 
 class MapTextView(TextView):
     def __init__(self, map : model.Map):

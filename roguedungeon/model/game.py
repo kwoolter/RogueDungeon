@@ -5,18 +5,17 @@ import random
 
 
 class RDGame:
-
     # Define game states
     STATE_LOADED = "Loaded"
     STATE_PLAYING = "Playing"
     STATE_VICTORY = "Victory"
     STATE_GAME_OVER = "Game Over"
 
-
-    def __init__(self, name : str):
+    def __init__(self, name: str):
         self.name = name
         self.map = None
         self.state = RDGame.STATE_LOADED
+        self.resources = {}
 
     @property
     def rooms(self):
@@ -43,6 +42,8 @@ class RDGame:
 
         self.state = RDGame.STATE_PLAYING
 
+        self.resources = {resource: 0 for resource in Resource}
+
     @property
     def current_room_id(self):
         return self.map.current_room_id
@@ -59,21 +60,37 @@ class RDGame:
 
     def get_current_map_square(self):
         square = self.map.get_map_square_at()
+
         return square
+
+    def get_square_resources(self):
+        square = self.map.get_map_square_at()
+        return list(square.resources.keys())
+
+    def take_resource(self, resource: Resource):
+        """Take all of the specified resource at the current room and add it to your inventory"""
+        square = self.get_current_map_square()
+        resource_quantity = square.resources.get(resource, 0)
+
+        if resource_quantity > 0:
+            self.resources[resource] += resource_quantity
+            square.resources[resource] = 0
+            print(f"Taking {resource_quantity} {resource} at {square.room.name}")
+        else:
+            raise ApplicationException("", f"There is no {resource.value} here")
 
     def get_adjacent_blank_squares(self):
 
         if self.state != RDGame.STATE_PLAYING:
             raise ApplicationException("Cannot do that this time", f"{self.name} game in state {self.state}")
 
-        square =  self.map.get_map_square_at()
+        square = self.map.get_map_square_at()
         directions = []
-        for k,v in square.exits.items():
+        for k, v in square.exits.items():
             if v.room_id == Map.EXIT_UNKNOWN:
                 directions.append(k)
 
         return directions
-
 
     def deal(self, direction):
 
@@ -117,15 +134,13 @@ class RDGame:
             room = RoomFactory.get_room_info(unlocks_room_id)
             print(f"You explored {room_trigger.name} which makes {room.name} available")
 
-
     def deal_and_move(self, room_id, direction):
 
         cx, cy = self.map.current_xy
-        x,y = self.map.add_xy(cx, cy, direction)
-        self.map.set_room_at(x,y,room_id)
+        x, y = self.map.add_xy(cx, cy, direction)
+        self.map.set_room_at(x, y, room_id)
         self.map.move(direction)
         self.post_deal_processing()
-
 
     def move(self, direction):
         if self.state != RDGame.STATE_PLAYING:
@@ -138,6 +153,3 @@ class RDGame:
 
     def end(self):
         self.state = RDGame.STATE_GAME_OVER
-
-
-

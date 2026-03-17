@@ -23,6 +23,7 @@ class Room:
         self.visible = visible
         self.unlock_room_id = unlock_room_id
         self.exits = {}
+        self.resources = {}
 
     def __str__(self):
         text = f"{self.name}: Exits "
@@ -35,6 +36,8 @@ class Room:
     def add_exit(self, direction: Direction, valid: bool = True):
         self.exits[direction] = valid
 
+
+
     def get_exits(self):
         exits = []
 
@@ -44,11 +47,18 @@ class Room:
 
         return exits
 
+    def add_resource(self, resource: Resource, quantity: int = 1):
+        if resource in self.resources.keys():
+            self.resources[resource] += quantity
+        else:
+            self.resources[resource] = quantity
+
     def print(self):
-        print(f"{self.room_id}. {self.name} - {self.description} : {self.exits}")
+        print(f"{self.room_id}. {self.name} - {self.description} : {self.exits} {self.resources}")
 
 
 class RoomFactory:
+
     rooms = None
     UNLOCKS_ROOM = {}
     UNLOCKED_BY_ROOM = {}
@@ -74,6 +84,7 @@ class RoomFactory:
     EXIT_EAST = "East"
     EXIT_WEST = "West"
     UNLOCKED_BY = "UnlockedByRoomID"
+
 
     EXITS = [EXIT_NORTH, EXIT_SOUTH, EXIT_EAST, EXIT_WEST]
 
@@ -106,8 +117,11 @@ class RoomFactory:
         # Add new column that totals the number of exists
         df["ExitCount"] = df[RoomFactory.EXITS].sum(axis=1)
 
-        # Tidy up the column that is used to specify if another room needs to be dealt to reveal this room
-        df[RoomFactory.UNLOCKED_BY] = df[RoomFactory.UNLOCKED_BY].fillna(0).astype('int64')
+        # Tidy up the integer columns
+        int_columns = [col.value for col in Resource]
+        int_columns.append(RoomFactory.UNLOCKED_BY)
+        for column in int_columns:
+            df[column] = df[column].fillna(0).astype('int64')
 
         # Map the rarity text string to an int
         df["RarityInt"] = df["Rarity"].map(RoomFactory.RARITY_TO_INT)
@@ -122,6 +136,8 @@ class RoomFactory:
         RoomFactory.UNLOCKS_ROOM = {v: k for k, v in RoomFactory.UNLOCKED_BY_ROOM.items()}
 
         print(f"Room unlocks {RoomFactory.UNLOCKS_ROOM}")
+
+        print(df)
 
 
 
@@ -162,6 +178,11 @@ class RoomFactory:
         for direction in Direction:
             is_exit = row[direction.value]
             new_room.add_exit(direction, is_exit)
+
+        for resource in Resource:
+            resource_quantity = row[resource.value]
+            if resource_quantity >0 :
+                new_room.add_resource(resource, resource_quantity)
 
         return new_room
 

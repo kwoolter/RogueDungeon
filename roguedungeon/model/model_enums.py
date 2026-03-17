@@ -26,6 +26,17 @@ DIRECTION_REVERSE = {Direction.NORTH: Direction.SOUTH,
                      Direction.EAST: Direction.WEST,
                      Direction.WEST: Direction.EAST}
 
+class Resource(Enum):
+    GOLD = "Gold"
+    KEYS = "Keys"
+    FOOD = "Food"
+    GEMS = "Gems"
+
+    def __str__(self):
+        return self.value
+
+
+
 def enum_value_to_key(enum_class: Enum, value: str, default=None):
     result = default
     try:
