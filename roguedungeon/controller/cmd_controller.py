@@ -28,6 +28,9 @@ class RDCLI(cmd.Cmd):
         self.game_view.print()
         self.print()
 
+        # Process any events that got raised
+        self.process_events()
+
     def do_quit(self, arg):
         '''Finish the current game'''
 
@@ -44,6 +47,9 @@ class RDCLI(cmd.Cmd):
             v = view.MapTextView(self.game.map)
             v.print()
 
+            # Process any events that got raised
+            self.process_events()
+
             # return True to exit Cmd the loop
             return True
 
@@ -55,6 +61,16 @@ class RDCLI(cmd.Cmd):
     def run(self):
         self.cmdloop()
 
+    def process_events(self):
+        # Loop to process game events
+        event = self.game.get_next_event()
+
+        while event is not None:
+
+            print(event)
+
+            event = self.game.get_next_event()
+
     def do_status(self, arg):
         '''Print the status of game'''
         try:
@@ -63,16 +79,22 @@ class RDCLI(cmd.Cmd):
                 v = view.GameTextView(self.game)
                 v.print()
 
+                # Process any events that got raised
+                self.process_events()
+
         except BaseException as e:
             print(e)
 
     def do_map(self, arg):
         '''Print the game map'''
         try:
-            # Set up a view ofthe game map and print it
+            # Set up a view of the game map and print it
             v = view.MapTextView(self.game.map)
             v.print()
             print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
+
+            # Process any events that got raised
+            self.process_events()
 
         except BaseException as e:
             print(e)
@@ -86,17 +108,29 @@ class RDCLI(cmd.Cmd):
         '''Move North'''
         self.move(model.Direction.NORTH)
 
+        # Process any events that got raised
+        self.process_events()
+
     def do_S(self, args):
         '''Move South'''
         self.move(model.Direction.SOUTH)
+
+        # Process any events that got raised
+        self.process_events()
 
     def do_E(self, args):
         '''Move East'''
         self.move(model.Direction.EAST)
 
+        # Process any events that got raised
+        self.process_events()
+
     def do_W(self, args):
         '''Move West'''
         self.move(model.Direction.WEST)
+
+        # Process any events that got raised
+        self.process_events()
 
     def do_deal(self, arg):
         '''Deal a room to explore a new square on the Map'''
@@ -127,6 +161,9 @@ class RDCLI(cmd.Cmd):
                 # Print the new location
                 self.print()
 
+                # Process any events that got raised
+                self.process_events()
+
         except BaseException as e:
             print(e)
 
@@ -136,6 +173,9 @@ class RDCLI(cmd.Cmd):
             resources = self.game.get_square_resources()
             resource = pick("Item", resources)
             self.game.take_resource(resource)
+
+            # Process any events that got raised
+            self.process_events()
 
         except BaseException as e:
             print(e)
