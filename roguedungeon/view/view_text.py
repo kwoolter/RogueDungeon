@@ -82,7 +82,8 @@ class MapSquareTextView(TextView):
             else:
                 print(f"Exit {k.value} leads to {v.name}")
 
-        if len(self.square.resources.values())>0:
+        # If there are some resources here then display them
+        if sum(self.square.resources.values())>0:
             print("You can see: ", end="")
             for k,v in self.square.resources.items():
                 if v > 0:

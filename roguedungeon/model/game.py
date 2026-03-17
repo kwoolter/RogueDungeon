@@ -68,14 +68,20 @@ class RDGame:
         return list(square.resources.keys())
 
     def take_resource(self, resource: Resource):
-        """Take all of the specified resource at the current room and add it to your inventory"""
+        """Take all the specified resource at the current room and add it to your inventory"""
+
+        # Get the current square and how much of the specified resource is there
         square = self.get_current_map_square()
         resource_quantity = square.resources.get(resource, 0)
 
+        # If there are some of teh specified resources here...
         if resource_quantity > 0:
+            # Add the resources to your inventory
             self.resources[resource] += resource_quantity
-            square.resources[resource] = 0
-            print(f"Taking {resource_quantity} {resource} at {square.room.name}")
+            # Zap the resources from the square
+            del square.resources[resource]
+            # Print what just happened
+            print(f"You take {resource_quantity} {resource} from {square.room.name}")
         else:
             raise ApplicationException("", f"There is no {resource.value} here")
 

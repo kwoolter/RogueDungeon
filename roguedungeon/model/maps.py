@@ -40,19 +40,23 @@ class Map:
                          Direction.EAST: (1, 0)}
 
     # Special Game reserved rooms
+    EMPTY = 0
     ENTRANCE = 1
     EXIT_END = 99
     EXIT_NONE = 101
     EXIT_BLOCKED = 102
-    EXIT_UNKNOWN = 103
+    EXIT_UNKNOWN = EMPTY
 
     def __init__(self, name: str):
+
         self.name = name
+        self.max_width = 5
+        self.max_height = 5
         self.map = None
         self.moves = 0
         self.rooms = 0
         self.current_xy = (2, 0)
-        self.square_cache = {}
+        self._square_cache = {}
 
     @property
     def current_x(self):
@@ -79,16 +83,20 @@ class Map:
 
         RoomFactory.load("rooms.csv")
 
+        self._square_cache = {}
+
+        # Build an array full of zeros to hold the map dataiils
         self.max_width = 5
         self.max_height = 9
         self.map = np.zeros(self.max_width * self.max_height, dtype=int)
         self.map = self.map.reshape(self.max_width, self.max_height)
 
+        # Populate the map with the entrance and exit squares
         x, y = self.current_xy
         self.set_room_at(x, y, Map.ENTRANCE)
         self.set_room_at(2, 8, Map.EXIT_END)
 
-        self.square_cache = {}
+
 
     def move(self, direction: Direction):
 
@@ -129,6 +137,7 @@ class Map:
         return self.current_xy
 
     def add_xy(self, x, y, direction: Direction):
+        """Calculate a new x,y based on x,y + direction vector"""
 
         new_x, new_y = self.current_xy
         dx, dy = Map.DIRECTION_VECTORS[direction]
@@ -145,6 +154,8 @@ class Map:
         print(self.map)
 
     def set_room_at(self, x: int, y: int, room_id: int):
+
+        # If the specified x,y is in bounds of the map
         if self.is_valid_xy(x, y):
 
             # Set the room at the specified location
@@ -161,14 +172,21 @@ class Map:
 
     def get_room_at(self, x: int = None, y: int = None):
 
+        # Default x,y if some values are not specified
         if x is None:
-            x, y = self.current_xy
-        elif y is None:
+            x, z = self.current_xy
+        if y is None:
             z, y = self.current_xy
 
+        # If the x,y is in the bounds of the map...
         if self.is_valid_xy(x, y):
+
+            # Get the ID of the room that is at the x,y location
             room_id = self.map[x, y]
-            if room_id > 0:
+
+            # If x,y contains a non-empty room...
+            if room_id != Map.EMPTY:
+                # get the room details from the factory
                 room = RoomFactory.get_room_info(room_id)
             else:
                 room = None
@@ -178,58 +196,68 @@ class Map:
         return room
 
     def get_map_square_at(self, x: int = None, y: int = None):
-        ''' Build a MapSquare containing all of the details of the current x,y location on the Map '''
+        ''' Build a MapSquare containing all of the details at the current x,y location on the Map '''
 
+        # Default some values of x,y if they were not specified
         if x is None:
             x, z = self.current_xy
         if y is None:
             z, y = self.current_xy
 
+        # Check that the x,y coordinates are in the bounds of the map
         if self.is_valid_xy(x, y) is True:
 
-            square = self.square_cache.get((x,y), None)
+            # See is we have already cached the map square at this x,y
+            square = self._square_cache.get((x,y), None)
 
+            # Nothing in the cache so we need to create a map square based on the room ID
             if square is None:
+
+                # Create a basic map square
                 room_id = self.map[x, y]
                 square = MapSquare(room_id, x, y)
                 square.initialise()
 
-                for k, v in square.room.exits.items():
-                    if v == False:
-                        square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_NONE))
-                    else:
+                # Store it in the cache
+                self._square_cache[(x,y)] = square
 
-                        dx, dy = Map.DIRECTION_VECTORS[k]
-                        rx = x + dx
-                        ry = y + dy
+            # Add the exits to the map square even if we found it in the cache so we get the latest state
+            for k, v in square.room.exits.items():
+                if v == False:
+                    square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_NONE))
+                else:
 
-                        # If the adjacent square in bounds?
-                        if self.is_valid_xy(rx, ry) is True:
+                    dx, dy = Map.DIRECTION_VECTORS[k]
+                    rx = x + dx
+                    ry = y + dy
 
-                            adj_room_id = self.map[rx][ry]
+                    # If the adjacent square in bounds?
+                    if self.is_valid_xy(rx, ry) is True:
 
-                            # If the adjacent square is 0 then no card has been dealt here yet
-                            if adj_room_id == 0:
-                                square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_UNKNOWN))
+                        adj_room_id = self.map[rx][ry]
 
-                            # else there is a dealt card...
-                            else:
+                        # If the adjacent square is 0 then no card has been dealt here yet
+                        if adj_room_id == 0:
+                            square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_UNKNOWN))
 
-                                # Get the details of the room template from the Factory
-                                adj_room = RoomFactory.get_room_info(adj_room_id)
-
-                                # Check if the adjacent card's opposite exit lines up with this card?
-                                opp_exist = DIRECTION_REVERSE[k]
-                                if adj_room.exits.get(opp_exist, False) == True:
-                                    square.add_exit(k, adj_room)
-
-                                # If it doesn't line up then it is blocked
-                                else:
-                                    square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_BLOCKED))
-
-                        # If no in bound then show as blocked
+                        # else there is a dealt card...
                         else:
-                            square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_BLOCKED))
+
+                            # Get the details of the room template from the Factory
+                            adj_room = RoomFactory.get_room_info(adj_room_id)
+
+                            # Check if the adjacent card's opposite exit lines up with this card?
+                            opp_exist = DIRECTION_REVERSE[k]
+                            if adj_room.exits.get(opp_exist, False) == True:
+                                square.add_exit(k, adj_room)
+
+                            # If it doesn't line up then it is blocked
+                            else:
+                                square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_BLOCKED))
+
+                    # If not in bounds then show as blocked
+                    else:
+                        square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_BLOCKED))
 
         else:
             raise ApplicationException("Get square out of bounds", f"{x}, {y} is out of bounds")
