@@ -208,6 +208,7 @@ class RoomFactory:
     @staticmethod
     def get_matching_rooms(mandatory_exit: Direction,
                            min_exits : int = 1,
+                           max_exits: int = 4,
                            min_rank: int = 1,
                            max_rank: int = 9,
                            min_rarity: str = "Commonplace",
@@ -225,6 +226,7 @@ class RoomFactory:
         # Build the query
         q = f"Visible == {visible}"
         q += f" and ExitCount >= {min_exits}"
+        q += f" and ExitCount <= {max_exits}"
         q += f" and MinRank >= {min_rank}"
         q += f" and MinRank <= {max_rank}"
         q += f" and RarityInt >= {min_rarity_int}"

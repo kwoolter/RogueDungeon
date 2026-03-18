@@ -81,11 +81,13 @@ class Map:
 
     def initialise(self):
 
+        # Load the factory of room templates
         RoomFactory.load("rooms.csv")
 
+        # Define a cache for squarea
         self._square_cache = {}
 
-        # Build an array full of zeros to hold the map dataiils
+        # Build an array full of zeros to hold the map datails
         self.max_width = 5
         self.max_height = 9
         self.map = np.zeros(self.max_width * self.max_height, dtype=int)
@@ -99,6 +101,7 @@ class Map:
 
 
     def move(self, direction: Direction):
+        """ Attempt to move from the current square in the specified direction """
 
         # Get the details of the current square
         square = self.get_map_square_at()
@@ -223,10 +226,13 @@ class Map:
 
             # Add the exits to the map square even if we found it in the cache so we get the latest state
             for k, v in square.room.exits.items():
+                # If no exit for this direction then add an NO EXIT room to the square
                 if v == False:
                     square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_NONE))
+
                 else:
 
+                    # Get the coordinates of the square for this exit
                     dx, dy = Map.DIRECTION_VECTORS[k]
                     rx = x + dx
                     ry = y + dy
@@ -237,7 +243,7 @@ class Map:
                         adj_room_id = self.map[rx][ry]
 
                         # If the adjacent square is 0 then no card has been dealt here yet
-                        if adj_room_id == 0:
+                        if adj_room_id == Map.EXIT_UNKNOWN:
                             square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_UNKNOWN))
 
                         # else there is a dealt card...

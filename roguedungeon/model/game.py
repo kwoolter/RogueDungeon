@@ -161,12 +161,25 @@ class RDGame:
         # Do anything that needs doing before we go ahead and deal
         self.pre_deal_processing()
 
-        # Deal some cards
-        results = self.deck.get_matching_rooms()
+        # Try 3 times to get at least 3 cards
+        for i in range(3):
 
-        # If we got 3 or less results then just use these
+            # Deal some cards
+            results = self.deck.get_matching_rooms()
+
+            # We got at least 3 cards so all good
+            if len(results) >= 3:
+                break
+            # Else tweak the query parameters to try and get more matching rooms
+            else:
+                print(f"On deal {i+1} we only got {len(results)} matching cards so trying again...")
+                max_rarity_int = min(RoomFactory.RARITY_TO_INT[self.deck.max_rarity] + 1, max(RoomFactory.RARITY_TO_INT.values()))
+                self.deck.max_rarity = RoomFactory.INT_TO_RARITY[max_rarity_int]
+                self.deck.max_exits += 1
+
+        # If we still only got 3 or less results so just use these
         if len(results) <= 3:
-            print(f"Deal result only get {len(results)} matching cards")
+            print(f"Deal only got {len(results)} matching cards")
             rooms = results
         # Else sample 3 random cards
         else:

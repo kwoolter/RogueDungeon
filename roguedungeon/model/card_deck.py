@@ -20,17 +20,19 @@ class RoomCardDeck:
         RoomFactory.load("rooms.csv")
 
     def deal(self, mandatory_exit):
-
-        rooms = []
-
+        self.mandatory_exit = mandatory_exit
         results = self.get_matching_rooms()
 
         return results
 
+    def remove_room(self, room_id : int):
+        # Flag the room in the Factory as no longer available
+        RoomFactory.set_room_property(room_id, "Visible", False)
+
     def get_matching_rooms(self):
 
         results = RoomFactory.get_matching_rooms(self.mandatory_exit,
-                                                 self.min_exits,
+                                                 self.min_exits, self.max_exits,
                                                  self.min_rank, self.max_rank,
                                                  self.min_rarity, self.max_rarity,
                                                  self.visible)
