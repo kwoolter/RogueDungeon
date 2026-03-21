@@ -2,8 +2,6 @@ import logging
 import numpy as np
 import copy
 
-from pygame.examples.video import driver
-
 from roguedungeon.model.model_enums import *
 from roguedungeon.model.model_exceptions import *
 from roguedungeon.model.rooms import Room, RoomFactory

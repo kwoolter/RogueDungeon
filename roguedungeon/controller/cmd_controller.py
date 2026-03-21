@@ -57,7 +57,6 @@ class RDCLI(cmd.Cmd):
             print("Let's keep going...")
             return False
 
-
     def run(self):
         self.cmdloop()
 
@@ -66,7 +65,6 @@ class RDCLI(cmd.Cmd):
         event = self.game.get_next_event()
 
         while event is not None:
-
             print(event)
 
             event = self.game.get_next_event()
@@ -98,7 +96,6 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(e)
-
 
     def do_look(self, arg):
         '''View the current room'''
@@ -136,11 +133,28 @@ class RDCLI(cmd.Cmd):
         """Use keys to unlock exits"""
         try:
 
+            # Get a list of exits that are locked
             choices = self.game.get_locked_exits()
+
+            # If there are locked exits...
             if len(choices) > 0:
-                direction = pick("Exit", choices)
-                if direction is not None:
-                    self.game.unlock_exit(direction)
+
+                # See if you have a key to use to unlock...
+                if self.game.resources.get(model.Resource.KEYS, 0) > 0:
+
+                    # Pick teh exit that you want to unlock
+                    direction = pick("Exit", choices)
+
+                    # Unlock the selected exit
+                    if direction is not None:
+                        self.game.unlock_exit(direction)
+                        print(f"You used a key to unlock the {direction} exit")
+
+                # You don't have a key
+                else:
+                    print("You don't have any keys!")
+
+            # No locked exits
             else:
                 print("There are no locked exits here")
 
@@ -192,10 +206,16 @@ class RDCLI(cmd.Cmd):
     def do_get(self, args):
         """ Get a resource from the current room"""
         try:
+            # See what resources are available at the current square
             resources = self.game.get_square_resources()
-            resource = pick("Item", resources)
 
+            # Pick the resource that you want to get
+            resource = pick("Item", resources, auto_pick=True)
+
+            # If a valid selection was made...
             if resource is not None:
+
+                # Take the selected resource
                 self.game.take_resource(resource)
 
             # Process any events that got raised
@@ -218,6 +238,8 @@ class RDCLI(cmd.Cmd):
             print(str(e))
 
     def game_over(self):
+
+        # Check if you successfully completed the game
         if self.game.state == model.RDGame.STATE_VICTORY:
             print(f"Congratulations - you completed {self.game.name}")
 
@@ -252,7 +274,7 @@ def confirm(question: str):
 
 # Function to present a menu to pick an object from a list of objects
 # auto_pick means if the list has only one item then automatically pick that item
-def pick(object_type: str, objects: list, cancel = True, auto_pick: bool = False):
+def pick(object_type: str, objects: list, cancel=True, auto_pick: bool = False):
     selected_object = None
     choices = len(objects)
     vowels = "AEIOU"

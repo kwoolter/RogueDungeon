@@ -237,7 +237,7 @@ class RoomFactory:
         q += f" and {mandatory_exit} == True"
 
         # Run the query
-        print(f"Running room query {q}")
+        print(f"\tDEBUG:Running room query {q}")
         matched = df.query(q)
 
         # Format the results

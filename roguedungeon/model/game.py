@@ -5,6 +5,7 @@ import random
 import collections
 from .events import *
 
+
 class EventQueue:
     def __init__(self):
         self.events = collections.deque()
@@ -22,6 +23,7 @@ class EventQueue:
         for event in self.events:
             print(event)
 
+
 class RDGame:
     # Define game states
     STATE_LOADED = "Loaded"
@@ -35,6 +37,7 @@ class RDGame:
         self.state = RDGame.STATE_LOADED
         self.resources = {}
         self.events = EventQueue()
+        self.deck = None
 
     @property
     def rooms(self):
@@ -69,8 +72,6 @@ class RDGame:
 
         # Change the game state to show we are ready to go
         self.state = RDGame.STATE_PLAYING
-
-
 
     @property
     def current_room_id(self):
@@ -172,8 +173,9 @@ class RDGame:
                 break
             # Else tweak the query parameters to try and get more matching rooms
             else:
-                print(f"On deal {i+1} we only got {len(results)} matching cards so trying again...")
-                max_rarity_int = min(RoomFactory.RARITY_TO_INT[self.deck.max_rarity] + 1, max(RoomFactory.RARITY_TO_INT.values()))
+                print(f"On deal {i + 1} we only got {len(results)} matching cards so trying again...")
+                max_rarity_int = min(RoomFactory.RARITY_TO_INT[self.deck.max_rarity] + 1,
+                                     max(RoomFactory.RARITY_TO_INT.values()))
                 self.deck.max_rarity = RoomFactory.INT_TO_RARITY[max_rarity_int]
                 self.deck.max_exits += 1
 
@@ -191,11 +193,10 @@ class RDGame:
         """Put any logic here that you want to kick-in before the deal is made"""
         pass
 
-    def is_exit_locked(self,direction : Direction):
+    def is_exit_locked(self, direction: Direction):
         # Get details of the current room
         current_square = self.map.get_map_square_at()
         return current_square.is_exit_locked(direction)
-
 
     def lock_random_exits(self):
         """ Lock some random exits in the current room based"""
@@ -213,15 +214,16 @@ class RDGame:
 
             # If we find some then randomly pick some exits and lock them
             if len(exits) > 0:
-                # How many exits are we locking
-                k = min(1, len(exits))
 
-                # Get a random sample of exits and lock each one
+                # How many exits are we locking?
+                k = min(random.randint(0, (rank + 1) // 3), len(exits))
+
+                # Get a random sample of k exits and lock each one
                 for exit_to_lock in random.sample(exits, k=k):
                     current_square.lock_exit(exit_to_lock)
-                    print(f"Locked {exit_to_lock.value} exit in {current_square.room.name}")
+                    print(f"\tLocked {exit_to_lock.value} exit in {current_square.room.name}")
         else:
-            print(f"No exits were locked in {current_square.room.name}")
+            print(f"\tNo exits were locked in {current_square.room.name}")
 
     def get_locked_exits(self):
         # Get details of the current room
@@ -229,7 +231,7 @@ class RDGame:
 
         return list(current_square.locks)
 
-    def unlock_exit(self, direction : Direction):
+    def unlock_exit(self, direction: Direction):
 
         # Get details of the current room
         current_square = self.map.get_map_square_at()
@@ -238,12 +240,12 @@ class RDGame:
         if current_square.is_exit_locked(direction):
 
             # ...and you have a key
-            if self.resources.get(Resource.KEYS,0) > 0:
+            if self.resources.get(Resource.KEYS, 0) > 0:
 
                 # Unlock the specified exit
                 current_square.lock_exit(direction, False)
                 self.resources[Resource.KEYS] -= 1
-                print(f"You used a key to unlock the {direction.value} from {current_square.room.name}")
+                # print(f"\tYou used a key to unlock the {direction.value} from {current_square.room.name}")
 
             else:
                 raise ApplicationException("Unlock Exit",
@@ -253,8 +255,6 @@ class RDGame:
 
     def post_deal_processing(self):
         """Put any logic here that you want to kick-in once a new room card has been selected """
-
-
 
         # Get details of the current room square
         room_id = self.map.current_room_id
@@ -281,7 +281,6 @@ class RDGame:
                                         description=f"You explored {current_room.name} which makes {room.name} available"))
 
     def deal_and_move(self, room_id, direction):
-
 
         # Check that the exit from this square in the specified direction is not locked.
         square = self.get_current_map_square()
