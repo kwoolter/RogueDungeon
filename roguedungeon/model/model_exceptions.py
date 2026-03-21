@@ -13,3 +13,7 @@ class ApplicationException(BaseException):
     def __init__(self, name, description):
         super().__init__(name, description)
 
+
+class ErrorException(BaseException):
+    def __init__(self, name, description):
+        super().__init__(name, description)

@@ -159,7 +159,7 @@ class RDGame:
         self.deck.max_exits = random.randint(1, 4)
 
         # Do anything that needs doing before we go ahead and deal
-        self.pre_deal_processing()
+        self.pre_deal_processing(direction)
 
         # Try 3 times to get at least 3 cards
         for i in range(3):
@@ -187,16 +187,82 @@ class RDGame:
 
         return rooms
 
-    def pre_deal_processing(self):
+    def pre_deal_processing(self, direction):
         """Put any logic here that you want to kick-in before the deal is made"""
         pass
+
+    def is_exit_locked(self,direction : Direction):
+        # Get details of the current room
+        current_square = self.map.get_map_square_at()
+        return current_square.is_exit_locked(direction)
+
+
+    def lock_random_exits(self):
+        """ Lock some random exits in the current room based"""
+
+        # Get details of the current room
+        current_square = self.map.get_map_square_at()
+
+        # Run a random check to see if we want to add a lock based on current y
+        rank = current_square.y
+        # rank = 999 # debug
+        if random.randint(0, self.map.max_height) < rank:
+
+            # Find which exits have not yet been explored
+            exits = self.get_adjacent_blank_squares()
+
+            # If we find some then randomly pick some exits and lock them
+            if len(exits) > 0:
+                # How many exits are we locking
+                k = min(1, len(exits))
+
+                # Get a random sample of exits and lock each one
+                for exit_to_lock in random.sample(exits, k=k):
+                    current_square.lock_exit(exit_to_lock)
+                    print(f"Locked {exit_to_lock.value} exit in {current_square.room.name}")
+        else:
+            print(f"No exits were locked in {current_square.room.name}")
+
+    def get_locked_exits(self):
+        # Get details of the current room
+        current_square = self.map.get_map_square_at()
+
+        return list(current_square.locks)
+
+    def unlock_exit(self, direction : Direction):
+
+        # Get details of the current room
+        current_square = self.map.get_map_square_at()
+
+        # If the exit is locked
+        if current_square.is_exit_locked(direction):
+
+            # ...and you have a key
+            if self.resources.get(Resource.KEYS,0) > 0:
+
+                # Unlock the specified exit
+                current_square.lock_exit(direction, False)
+                self.resources[Resource.KEYS] -= 1
+                print(f"You used a key to unlock the {direction.value} from {current_square.room.name}")
+
+            else:
+                raise ApplicationException("Unlock Exit",
+                                           f"You don't have any keys to unlock the {direction} exit from {current_square.room.name}")
+        else:
+            raise ApplicationException("Unlock Exit", f"Exit {direction} from {current_square.room.name} is not locked")
 
     def post_deal_processing(self):
         """Put any logic here that you want to kick-in once a new room card has been selected """
 
-        # Get details of the current room
+
+
+        # Get details of the current room square
         room_id = self.map.current_room_id
-        room_trigger = RoomFactory.get_room_info(room_id)
+        current_square = self.map.get_map_square_at()
+        current_room = current_square.room
+
+        # Run some logic to randomly lock some of the new square's exits
+        self.lock_random_exits()
 
         # If we have got to the end of the dungeon then set the game state to victory
         if room_id == Map.EXIT_END:
@@ -212,15 +278,27 @@ class RDGame:
             room = RoomFactory.get_room_info(unlocks_room_id)
             self.events.add_event(Event(type=Event.GAME,
                                         name=Event.GAME_UNLOCK_ROOM,
-                                        description=f"You explored {room_trigger.name} which makes {room.name} available"))
+                                        description=f"You explored {current_room.name} which makes {room.name} available"))
 
     def deal_and_move(self, room_id, direction):
 
+
+        # Check that the exit from this square in the specified direction is not locked.
+        square = self.get_current_map_square()
+        if square.is_exit_locked(direction):
+            raise ApplicationException("Exit is locked", f"Exit {direction} from {square.room.name} is locked.")
+
+        # find the x,y for the new room based on the current x,y and the direction vector
         cx, cy = self.map.current_xy
         x, y = self.map.add_xy(cx, cy, direction)
+
+        # Place the new room at the x,y
         self.map.set_room_at(x, y, room_id)
+
+        # Move the player to the new room
         self.map.move(direction)
 
+        # Run any logic that needs to be done after a new room has been dealt
         self.post_deal_processing()
 
     def move(self, direction):

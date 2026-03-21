@@ -132,6 +132,21 @@ class RDCLI(cmd.Cmd):
         # Process any events that got raised
         self.process_events()
 
+    def do_unlock(self, args):
+        """Use keys to unlock exits"""
+        try:
+
+            choices = self.game.get_locked_exits()
+            if len(choices) > 0:
+                direction = pick("Exit", choices)
+                if direction is not None:
+                    self.game.unlock_exit(direction)
+            else:
+                print("There are no locked exits here")
+
+        except BaseException as e:
+            print(e)
+
     def do_deal(self, arg):
         '''Deal a room to explore a new square on the Map'''
 
@@ -141,28 +156,35 @@ class RDCLI(cmd.Cmd):
             exits = self.game.get_adjacent_blank_squares()
 
             # Get the player to pick the direction that they wish to explore
-            direction = pick("Direction", list(exits))
+            direction = pick("Direction", exits)
 
             # If they picked a direction...
             if direction is not None:
-                print(f"Exploring {direction}...")
 
-                # Deal some cards that have an exit in the opposite direction
-                opp_exit = model.DIRECTION_REVERSE[direction]
-                rooms = self.game.deal(opp_exit)
+                # Check if the chosen direction is unlocked
+                if self.game.is_exit_locked(direction):
+                    print(f"Exit {direction} is locked.")
 
-                # Pick a room card - no cancels allowed, they have to pick a card
-                room = pick("Room", rooms, cancel=False)
+                else:
 
-                # Deal the selected card and move to the new location
-                print(f"Dealing {room}")
-                self.game.deal_and_move(room.room_id, direction)
+                    print(f"Exploring {direction}...")
 
-                # Print the new location
-                self.print()
+                    # Deal some cards that have an exit in the opposite direction
+                    opp_exit = model.DIRECTION_REVERSE[direction]
+                    rooms = self.game.deal(opp_exit)
 
-                # Process any events that got raised
-                self.process_events()
+                    # Pick a room card - no cancels allowed, they have to pick a card
+                    room = pick("Room", rooms, cancel=False)
+
+                    # Deal the selected card and move to the new location
+                    print(f"Dealing {room}")
+                    self.game.deal_and_move(room.room_id, direction)
+
+                    # Print the new location
+                    self.print()
+
+                    # Process any events that got raised
+                    self.process_events()
 
         except BaseException as e:
             print(e)
@@ -172,7 +194,9 @@ class RDCLI(cmd.Cmd):
         try:
             resources = self.game.get_square_resources()
             resource = pick("Item", resources)
-            self.game.take_resource(resource)
+
+            if resource is not None:
+                self.game.take_resource(resource)
 
             # Process any events that got raised
             self.process_events()

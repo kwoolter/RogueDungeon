@@ -1,6 +1,8 @@
 from pathlib import Path
 import pandas as pd
 from roguedungeon.model.model_enums import *
+from roguedungeon.model.model_exceptions import *
+
 
 
 class Room:
@@ -126,20 +128,15 @@ class RoomFactory:
         # Map the rarity text string to an int
         df["RarityInt"] = df["Rarity"].map(RoomFactory.RARITY_TO_INT)
 
-        print(f"{len(df.index)} rooms loaded.")
+        # Ensure that a room is not visible if there is an "unlocked by" room specified
+        df["Visible"] = df["UnlockedByRoomID"] == 0
 
         # Build maps of which rooms unlock another room
         RoomFactory.UNLOCKED_BY_ROOM = df[df[RoomFactory.UNLOCKED_BY]>0][RoomFactory.UNLOCKED_BY].to_dict()
-
-        print(f"Rooms unlocked by {RoomFactory.UNLOCKED_BY_ROOM}")
-
         RoomFactory.UNLOCKS_ROOM = {v: k for k, v in RoomFactory.UNLOCKED_BY_ROOM.items()}
 
+        print(f"Rooms unlocked by {RoomFactory.UNLOCKED_BY_ROOM}")
         print(f"Room unlocks {RoomFactory.UNLOCKS_ROOM}")
-
-        print(df)
-
-
 
 
 
@@ -156,7 +153,9 @@ class RoomFactory:
 
     @staticmethod
     def row_to_room(room_id, row) -> Room:
+        """ Convert a row in the dataframe to a Room object"""
 
+        # Get the Room properties from the relevant columns in the data frame
         room_id = room_id
         name = row["Name"]
         description = row["Description"]
@@ -166,6 +165,7 @@ class RoomFactory:
         visible = row[RoomFactory.ROOM_VISIBLE_PROPERTY]
         unlock_room_id = row[RoomFactory.UNLOCKED_BY]
 
+        # Create a new Room object using the properties
         new_room = Room(room_id=room_id,
                         name=name,
                         description=description,
@@ -175,10 +175,12 @@ class RoomFactory:
                         visible=visible,
                         unlock_room_id=unlock_room_id)
 
+        # Add the exits to the Room
         for direction in Direction:
             is_exit = row[direction.value]
             new_room.add_exit(direction, is_exit)
 
+        # Add the resources to the Room
         for resource in Resource:
             resource_quantity = row[resource.value]
             if resource_quantity >0 :
@@ -201,7 +203,7 @@ class RoomFactory:
                 e = RoomFactory.row_to_room(index, row)
                 matches.append(e)
         else:
-            print(f"Can't find property {property_name} in factory!")
+            raise ErrorException("RoomFactory Error",f"Can't find property {property_name} in factory!")
 
         return matches
 
@@ -214,6 +216,7 @@ class RoomFactory:
                            min_rarity: str = "Commonplace",
                            max_rarity: str = "Rare",
                            visible: bool = True) -> list:
+        """ Run a query on the data frame using various filters and return the results as a list of Room objects"""
 
         matches = []
         df = RoomFactory.rooms
@@ -259,22 +262,24 @@ class RoomFactory:
                 room = RoomFactory.row_to_room(index, row)
                 matches.append(room)
         else:
-            print(f"Can't find property {direction} in factory!")
+            raise ErrorException("RoomFactory Error",f"Can't find direction {direction} in factory!")
+
 
         return matches
 
     @staticmethod
     def set_room_property(room_id: int, property: str, value):
-        room = RoomFactory.get_room_info(room_id)
+        """ Set a property of a room in the data frame"""
+        df = RoomFactory.rooms
 
-        if room is not None:
-            df = RoomFactory.rooms
+        if room_id in df.index:
             if property in df.columns:
                 df.loc[room_id, property] = value
             else:
-                print(f"Property {property} is not valid")
+                raise ErrorException("RoomFactory Error", f"Can't find property {property} in factory!")
+
         else:
-            print(f"Can't find room with ID {room_id}")
+            raise ErrorException("RoomFactory Error", f"Can't find room with ID {room_id}")
 
 
 def run_tests():

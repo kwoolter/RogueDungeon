@@ -2,6 +2,8 @@ import logging
 import numpy as np
 import copy
 
+from pygame.examples.video import driver
+
 from roguedungeon.model.model_enums import *
 from roguedungeon.model.model_exceptions import *
 from roguedungeon.model.rooms import Room, RoomFactory
@@ -16,11 +18,13 @@ class MapSquare:
 
         self.room = None
         self.exits = {}
+        self.locks = set()
         self.resources = {}
 
     def initialise(self):
         self.room = RoomFactory.get_room_info(self.room_id)
         self.resources = copy.deepcopy(self.room.resources)
+
 
     def add_exit(self, direction: str, to_room: Room):
         self.exits[direction] = to_room
@@ -29,6 +33,27 @@ class MapSquare:
         print(f"Room {self.room_id}: {self.room.name}")
         for k, v in self.exits.items():
             print(f"Exit {k.value} leads to {v.name}")
+
+    def lock_exit(self, direction : Direction, lock : bool = True):
+
+        if lock:
+            self.locks.add(direction)
+            # print(f"Exit {direction} from {self.room.name} is now locked")
+        else:
+            self.locks.remove(direction)
+            # print(f"Exit {direction} from {self.room.name} is now unlocked")
+
+
+    def is_exit_locked(self, direction : Direction):
+
+        exit = self.exits.get(direction, None)
+
+        if exit is None:
+            raise ApplicationException("Exit Locked Check", f"Room {self.room.name} does not have an exit {direction}")
+        else:
+            locked = direction in self.locks
+
+        return locked
 
 
 class Map:
@@ -84,10 +109,10 @@ class Map:
         # Load the factory of room templates
         RoomFactory.load("rooms.csv")
 
-        # Define a cache for squarea
+        # Define a cache for square
         self._square_cache = {}
 
-        # Build an array full of zeros to hold the map datails
+        # Build an array full of zeros to hold the map details
         self.max_width = 5
         self.max_height = 9
         self.map = np.zeros(self.max_width * self.max_height, dtype=int)
@@ -97,8 +122,6 @@ class Map:
         x, y = self.current_xy
         self.set_room_at(x, y, Map.ENTRANCE)
         self.set_room_at(2, 8, Map.EXIT_END)
-
-
 
     def move(self, direction: Direction):
         """ Attempt to move from the current square in the specified direction """
@@ -170,6 +193,9 @@ class Map:
             # Flag the room in the Factory as no longer available
             RoomFactory.set_room_property(room_id, "Visible", False)
 
+            square = self.get_map_square_at(x,y)
+
+
         else:
             raise ApplicationException("Set room out of bounds", f"{x}, {y} is out of bounds")
 
@@ -227,9 +253,8 @@ class Map:
             # Add the exits to the map square even if we found it in the cache so we get the latest state
             for k, v in square.room.exits.items():
                 # If no exit for this direction then add an NO EXIT room to the square
-                if v == False:
+                if not v:
                     square.add_exit(k, RoomFactory.get_room_info(Map.EXIT_NONE))
-
                 else:
 
                     # Get the coordinates of the square for this exit
