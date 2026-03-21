@@ -173,7 +173,7 @@ class RDGame:
                 break
             # Else tweak the query parameters to try and get more matching rooms
             else:
-                print(f"On deal {i + 1} we only got {len(results)} matching cards so trying again...")
+                print(f"\tDEBUG:On deal {i + 1} we only got {len(results)} matching cards so trying again...")
                 max_rarity_int = min(RoomFactory.RARITY_TO_INT[self.deck.max_rarity] + 1,
                                      max(RoomFactory.RARITY_TO_INT.values()))
                 self.deck.max_rarity = RoomFactory.INT_TO_RARITY[max_rarity_int]
@@ -181,7 +181,7 @@ class RDGame:
 
         # If we still only got 3 or less results so just use these
         if len(results) <= 3:
-            print(f"Deal only got {len(results)} matching cards")
+            print(f"\tDEBUG:Deal only got {len(results)} matching cards")
             rooms = results
         # Else sample 3 random cards
         else:
@@ -221,9 +221,9 @@ class RDGame:
                 # Get a random sample of k exits and lock each one
                 for exit_to_lock in random.sample(exits, k=k):
                     current_square.lock_exit(exit_to_lock)
-                    print(f"\tLocked {exit_to_lock.value} exit in {current_square.room.name}")
+                    print(f"\tDEBUG: Locked {exit_to_lock.value} exit in {current_square.room.name}")
         else:
-            print(f"\tNo exits were locked in {current_square.room.name}")
+            print(f"\tDEBUG: No exits were locked in {current_square.room.name}")
 
     def get_locked_exits(self):
         # Get details of the current room

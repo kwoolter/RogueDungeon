@@ -43,7 +43,7 @@ class GameTextView(TextView):
 
         print("You have: ", end="")
         for k, v in self.game.resources.items():
-            print(f"{RESOURCE_COLOURS[k]}{k.value}:{v}{Style.RESET_ALL}", end=" ")
+            print(f"{RESOURCE_COLOURS[k]} {k.value}:{v} {Style.RESET_ALL}", end=" ")
         print()
 
         print(f"State: {self.game.state}  |  Rooms: {self.game.rooms}  |  Moves: {self.game.moves}\n")
@@ -87,7 +87,7 @@ class MapSquareTextView(TextView):
             print("You can see: ", end="")
             for k,v in self.square.resources.items():
                 if v > 0:
-                    print(f"{RESOURCE_COLOURS[k]}{k.value}:{v}{Style.RESET_ALL}", end=" ")
+                    print(f"{RESOURCE_COLOURS[k]} {k.value}:{v} {Style.RESET_ALL}", end=" ")
             print()
 
 class MapTextView(TextView):
