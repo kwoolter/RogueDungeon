@@ -91,6 +91,7 @@ class MapSquareTextView(TextView):
             print()
 
 class MapTextView(TextView):
+    """ Display a text view of the game map"""
     def __init__(self, map : model.Map):
         super().__init__()
         self.map = map
@@ -135,6 +136,155 @@ class MapTextView(TextView):
             print("No map to view")
 
 
+    def print2(self):
+
+        if self.map is not None:
+            banner = "Rogue Dungeon"
+            no_exit = [model.Map.EXIT_BLOCKED, model.Map.EXIT_NONE]
+
+            print(f"\n{Style.BRIGHT}{banner:^36}{Style.RESET_ALL}")
+
+            grid_fgbg = Fore.BLACK + Back.GREEN
+            blank_fgbg = Back.BLACK
+            room_fgbg = Back.LIGHTWHITE_EX + Fore.BLACK
+            header_fgbg1 = Back.LIGHTGREEN_EX + Fore.BLACK
+            header_fgbg2 = Back.GREEN + Fore.BLACK
+            current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK
+
+            # Create a map of exit direction to the character that get printed if the exit is open or closed
+            EXIT_TO_TEXT = {
+                model.Direction.NORTH: ("  ", f"{Style.RESET_ALL}  "),
+                model.Direction.SOUTH: ("  ", f"{Style.RESET_ALL}  "),
+                model.Direction.EAST: (" ", f"{Style.RESET_ALL} "),
+                model.Direction.WEST: (" ", f"{Style.RESET_ALL} ")
+            }
+
+            grid = grid_fgbg + "|"
+            grid = ""
+
+            # Build the map header row
+            header = "   "
+            for x in range(1,6):
+
+                # Alternate colours
+                if x % 2 == 0:
+                    header_fgbg = header_fgbg1
+                else:
+                    header_fgbg = header_fgbg2
+
+                header += f"{header_fgbg}   {x}  "
+
+            header += Style.RESET_ALL
+            print(header)
+
+            # Loop through each row in the map starting at the top
+            for y in range(self.map.max_height - 1, -1, -1):
+
+                # Create 3 empty rows to hold the text
+                text = ["" for i in range(3)]
+
+                # Alternate colours
+                if y % 2 == 0:
+                    header_fgbg = header_fgbg1
+                else:
+                    header_fgbg = header_fgbg2
+
+                # Start each ro with the value of Y
+                for i in range(3):
+                    if i == 1:
+                        text[i] = header_fgbg + f"{y+1:^3}" + grid
+                    else:
+                        text[i] = header_fgbg + f"   " + grid
+
+                # Loop through each column in the map
+                for x in range(0, self.map.max_width):
+
+                    room_id = self.map.map[x,y]
+                    square = self.map.get_map_square_at(x,y)
+
+                    # If this is an empty square fill with blanks
+                    if room_id == 0:
+                        for i in range(3):
+                            text[i] += blank_fgbg + "      " + grid
+
+                    # Otherwise we need to display the square
+                    else:
+                        if (x,y) == self.map.current_xy:
+                            fgbg = current_fgbg
+                        else:
+                            fgbg = room_fgbg
+
+                        # Loop to create the 3 rows in each map cell
+                        for i in range(3):
+                            text[i] += ""
+
+                            # If we are on row 0 then this is the North exit
+                            if i == 0:
+                                direction = model.Direction.NORTH
+                                exit = square.exits[direction].room_id
+                                o, c = EXIT_TO_TEXT[direction]
+                                if exit in no_exit:
+                                    x = c
+                                elif exit == model.Map.EXIT_UNKNOWN:
+                                    x = "??"
+                                else:
+                                    x = o
+                                text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+
+                            # If we are on row 1 then this is the East/West exits
+                            elif i == 1:
+
+                                x = ["",""]
+                                directions = [model.Direction.WEST, model.Direction.EAST]
+
+                                for i in range(len(directions)):
+
+                                    direction = directions[i]
+                                    exit = square.exits[direction].room_id
+                                    o, c = EXIT_TO_TEXT[direction]
+
+                                    if exit in no_exit:
+                                        x[i] = c
+                                    elif exit == model.Map.EXIT_UNKNOWN:
+                                        x[i] = "?"
+                                    else:
+                                        x[i] = o
+
+                                #text[i] += f"{fgbg}{x[0]}{fgbg} {room_id:02} {x[1]}{Style.RESET_ALL}"
+                                text[i] += f"{fgbg}{x[0]}{fgbg}    {x[1]}{Style.RESET_ALL}"
+
+                            # if we are on row 2 this is the South exit
+                            elif i == 2:
+
+                                direction = model.Direction.SOUTH
+                                exit = square.exits[direction].room_id
+                                o, c = EXIT_TO_TEXT[direction]
+                                if exit in no_exit:
+                                    x = c
+                                elif exit == model.Map.EXIT_UNKNOWN:
+                                    x = "??"
+                                else:
+                                    x = o
+
+                                text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+
+                        for i in range(3):
+                            text[i] += grid
+
+                #row += header_fgbg + f"{y + 1:^3}" + Style.RESET_ALL
+                for i in range(3):
+                    if i == 1:
+                        text[i] += header_fgbg + f"{y + 1:^3}" + Style.RESET_ALL
+                    else:
+                        text[i] += header_fgbg + f"   " + Style.RESET_ALL
+
+                for i in range(3):
+                    print(text[i])
+
+            print(header)
+
+        else:
+            print("No map to view")
 
 
 

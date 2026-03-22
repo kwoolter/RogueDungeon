@@ -269,7 +269,7 @@ class RDGame:
             self.state = RDGame.STATE_VICTORY
             self.events.add_event(Event(type=Event.STATE,
                                         name=Event.STATE_VICTORY,
-                                        description=f"Victory! You completed the Rogue Dungeon in {self.moves} move."))
+                                        description=f"Victory! You have completed the Rogue Dungeon in {self.moves} moves."))
 
         # Process rooms that when dealt make other rooms visible
         unlocks_room_id = RoomFactory.UNLOCKS_ROOM.get(room_id, Map.EMPTY)
@@ -304,7 +304,13 @@ class RDGame:
         if self.state != RDGame.STATE_PLAYING:
             raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
 
+        # Attempt to move the player in teh specified direction
         self.map.move(direction)
+
+        # If we have got to the end of the dungeon then set the game state to victory
+        if self.map.current_room_id == Map.EXIT_END:
+            self.state = RDGame.STATE_VICTORY
+            self.events.add_event(Event("Game Over", f"Victory! You have completed the Rogue Dungeon in {self.moves} moves."))
 
     def end(self):
         self.state = RDGame.STATE_GAME_OVER

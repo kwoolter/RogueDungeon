@@ -85,14 +85,18 @@ class RDCLI(cmd.Cmd):
 
     def do_map(self, arg):
         '''Print the game map'''
-        try:
-            # Set up a view of the game map and print it
-            v = view.MapTextView(self.game.map)
-            v.print()
-            print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
 
-            # Process any events that got raised
-            self.process_events()
+        # Set up a view of the game map and print it
+        v = view.MapTextView(self.game.map)
+        #v.print()
+        v.print2()
+        print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
+
+        # Process any events that got raised
+        self.process_events()
+
+        try:
+            pass
 
         except BaseException as e:
             print(e)
@@ -143,7 +147,7 @@ class RDCLI(cmd.Cmd):
                 if self.game.resources.get(model.Resource.KEYS, 0) > 0:
 
                     # Pick teh exit that you want to unlock
-                    direction = pick("Exit", choices)
+                    direction = pick("Exit", choices, auto_pick=True)
 
                     # Unlock the selected exit
                     if direction is not None:

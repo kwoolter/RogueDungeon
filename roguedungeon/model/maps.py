@@ -245,8 +245,9 @@ class Map:
                 square = MapSquare(room_id, x, y)
                 square.initialise()
 
-                # Store it in the cache
-                self._square_cache[(x,y)] = square
+                # Store it in the cache if it is a real room
+                if room_id != Map.EXIT_UNKNOWN:
+                    self._square_cache[(x,y)] = square
 
             # Add the exits to the map square even if we found it in the cache so we get the latest state
             for k, v in square.room.exits.items():
