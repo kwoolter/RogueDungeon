@@ -31,6 +31,7 @@ class Resource(Enum):
     KEYS = "Keys"
     FOOD = "Food"
     GEMS = "Gems"
+    STEPS = "Steps"
 
     def __str__(self):
         return self.value

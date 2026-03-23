@@ -31,6 +31,9 @@ class RDGame:
     STATE_VICTORY = "Victory"
     STATE_GAME_OVER = "Game Over"
 
+    GOLD_ALLOWANCE = 5
+    STEPS_ALLOWANCE = 10
+
     def __init__(self, name: str):
         self.name = name
         self.map = None
@@ -69,6 +72,8 @@ class RDGame:
 
         # Initialise the player's inventory of resources
         self.resources = {resource: 0 for resource in Resource}
+        self.resources[Resource.GOLD] = RDGame.GOLD_ALLOWANCE
+        self.resources[Resource.STEPS] = RDGame.STEPS_ALLOWANCE
 
         # Change the game state to show we are ready to go
         self.state = RDGame.STATE_PLAYING
@@ -129,6 +134,15 @@ class RDGame:
 
         else:
             raise ApplicationException("", f"There is no {resource.value} here")
+
+        # Eat any food that you have and convert if to steps
+        if self.resources[Resource.FOOD] > 0:
+            self.resources[Resource.STEPS] += self.resources[Resource.FOOD]
+            self.resources[Resource.FOOD] = 0
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_EAT_FOOD,
+                                        description=f"You eat {resource_quantity} food and now have {self.resources[Resource.STEPS]} steps"))
+
 
     def get_adjacent_blank_squares(self):
 
@@ -221,9 +235,13 @@ class RDGame:
                 # Get a random sample of k exits and lock each one
                 for exit_to_lock in random.sample(exits, k=k):
                     current_square.lock_exit(exit_to_lock)
-                    print(f"\tDEBUG: Locked {exit_to_lock.value} exit in {current_square.room.name}")
+                    self.events.add_event(Event(type=Event.DEBUG,
+                                                name=Event.GAME_LOCK_EXIT,
+                                                description=f"Locked {exit_to_lock.value} exit in {current_square.room.name}"))
         else:
-            print(f"\tDEBUG: No exits were locked in {current_square.room.name}")
+            self.events.add_event(Event(type=Event.DEBUG,
+                                        name=Event.GAME_LOCK_EXIT,
+                                        description=f"No exits were locked in {current_square.room.name}"))
 
     def get_locked_exits(self):
         # Get details of the current room
@@ -261,6 +279,54 @@ class RDGame:
         current_square = self.map.get_map_square_at()
         current_room = current_square.room
 
+        # Deduct the gem cost of the room that you choose to deal
+        if current_room.cost > 0:
+            s=""
+            if current_room.cost > 1:
+                s = "s"
+            self.resources[Resource.GEMS] -= current_room.cost
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_SPEND_GEMS,
+                                        description=f"You spent {current_room.cost} gem{s} on {current_room.name}"))
+
+
+        # Add the number of bonus steps gained from dealing the room
+        bonus_steps = current_room.get_resource(Resource.STEPS)
+        if bonus_steps != 0:
+            s=""
+            if abs(bonus_steps) > 1:
+                s = "s"
+
+            # Increment our steps by the bonus
+            self.resources[Resource.STEPS] += bonus_steps
+
+            # Set the room's bonus steps to 0
+            current_room.set_resource(Resource.STEPS,0)
+
+            # Trigger an event if you gain or lose steps
+            if bonus_steps > 0:
+                self.events.add_event(Event(type=Event.GAME,
+                                            name=Event.GAME_STEP_BONUS,
+                                            description=f"You gain {bonus_steps} step{s} from dealing {current_room.name}."))
+            else:
+                self.events.add_event(Event(type=Event.GAME,
+                                            name=Event.GAME_STEP_PENALTY,
+                                            description=f"You lose {abs(bonus_steps)} step{s} from dealing {current_room.name}."))
+
+
+        # Decrement the number of steps that you have left
+        self.resources[Resource.STEPS] -= 1
+        self.events.add_event(Event(type=Event.DEBUG,
+                                    name=Event.GAME_TAKE_STEP,
+                                    description=f"You have {self.resources[Resource.STEPS]} steps left."))
+
+        # If you have run out of steps then it is game over!
+        if self.resources[Resource.STEPS] <= 0:
+            self.state = RDGame.STATE_GAME_OVER
+            self.events.add_event(Event(type=Event.STATE,
+                                        name=Event.STATE_GAME_OVER,
+                                        description=f"You ran out of steps. You failed to complete the Rogue Dungeon."))
+
         # Run some logic to randomly lock some of the new square's exits
         self.lock_random_exits()
 
@@ -287,6 +353,12 @@ class RDGame:
         if square.is_exit_locked(direction):
             raise ApplicationException("Exit is locked", f"Exit {direction} from {square.room.name} is locked.")
 
+        # Check that you can afford the new room
+        room = RoomFactory.get_room_info(room_id)
+        if room.cost > self.resources[Resource.GEMS]:
+            raise ApplicationException("Room Cost",
+                                       f"You don't have enough gems to buy {room.name} (cost = {room.cost})")
+
         # find the x,y for the new room based on the current x,y and the direction vector
         cx, cy = self.map.current_xy
         x, y = self.map.add_xy(cx, cy, direction)
@@ -306,6 +378,19 @@ class RDGame:
 
         # Attempt to move the player in the specified direction
         self.map.move(direction)
+
+        # Decrement the number of steps that you have left
+        self.resources[Resource.STEPS] -= 1
+        self.events.add_event(Event(type=Event.DEBUG,
+                                    name=Event.GAME_TAKE_STEP,
+                                    description=f"You have {self.resources[Resource.STEPS]} steps left."))
+
+        # If you have run out of steps then it is game over!
+        if self.resources[Resource.STEPS] <= 0:
+            self.state = RDGame.STATE_GAME_OVER
+            self.events.add_event(Event(type=Event.STATE,
+                                        name=Event.STATE_GAME_OVER,
+                                        description=f"You ran out of steps. You failed to complete the Rogue Dungeon."))
 
         # If we have got to the end of the dungeon then set the game state to victory
         if self.map.current_room_id == Map.EXIT_END:

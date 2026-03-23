@@ -2,11 +2,11 @@
 class Event():
 
     # Event Types
-    DEBUG = "debug"
-    QUIT = "quit"
+    DEBUG = "Debug"
+    QUIT = "Quit"
     DEFAULT = "default"
-    STATE = "state"
-    GAME = "game"
+    STATE = "State"
+    GAME = "Game"
     CONTROL = "control"
     EFFECT = "effect"
 
@@ -20,7 +20,13 @@ class Event():
 
     # Game events
     GAME_UNLOCK_ROOM = "Unlock Room"
+    GAME_LOCK_EXIT = "Lock Exit"
     GAME_TAKE_RESOURCE = "Take Resource"
+    GAME_SPEND_GEMS = "Spend Gems"
+    GAME_EAT_FOOD = "Eat Food"
+    GAME_TAKE_STEP = "Take a Step"
+    GAME_STEP_BONUS = "Step Bonus"
+    GAME_STEP_PENALTY = "Step Penalty"
 
 
     def __init__(self, name: str, description: str = None, type: str = DEFAULT):

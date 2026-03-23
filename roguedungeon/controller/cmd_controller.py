@@ -3,6 +3,8 @@ import roguedungeon.model as model
 import roguedungeon.view as view
 import logging
 
+from roguedungeon.model import Event
+
 
 class RDCLI(cmd.Cmd):
     intro = "Welcome to the Rogue Dungeon CLI.\n" \
@@ -12,6 +14,7 @@ class RDCLI(cmd.Cmd):
 
     def __init__(self):
         super().__init__(completekey='tab')
+        self._DEBUG = True
         self.game = None
         self.game_view = None
 
@@ -65,9 +68,18 @@ class RDCLI(cmd.Cmd):
         event = self.game.get_next_event()
 
         while event is not None:
-            print(event)
+
+            # Print the event
+            if event.type != Event.DEBUG or self._DEBUG is True:
+
+                v = view.EventTextView(event)
+                v.print()
 
             event = self.game.get_next_event()
+
+        # Check if the game is over
+        if self.game.state in (model.RDGame.STATE_VICTORY, model.RDGame.STATE_GAME_OVER):
+            self.game_over()
 
     def do_status(self, arg):
         '''Print the status of game'''
@@ -234,8 +246,8 @@ class RDCLI(cmd.Cmd):
             self.game.move(direction)
             self.print()
 
-            # Check if the move resulted in teh player completing the game
-            if self.game.state == model.RDGame.STATE_VICTORY:
+            # Check if the move resulted in the game ending
+            if self.game.state in (model.RDGame.STATE_VICTORY, model.RDGame.STATE_GAME_OVER):
                 self.game_over()
 
         except BaseException as e:

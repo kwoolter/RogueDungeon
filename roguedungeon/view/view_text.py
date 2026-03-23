@@ -18,7 +18,15 @@ RESOURCE_COLOURS = {
     model.Resource.GOLD : Back.YELLOW + Fore.BLACK,
     model.Resource.GEMS : Back.MAGENTA + Fore.BLACK,
     model.Resource.FOOD : Back.BLACK + Fore.RED,
+    model.Resource.STEPS: Back.BLACK + Fore.WHITE,
     model.Resource.KEYS : Back.WHITE + Fore.BLACK
+}
+
+EVENT_COLOURS = {
+    model.Event.GAME : Back.BLACK + Fore.LIGHTWHITE_EX,
+    model.Event.STATE : Back.YELLOW + Fore.BLACK,
+    model.Event.DEBUG : Back.BLACK + Fore.WHITE,
+    model.Event.DEFAULT : Back.BLACK + Fore.GREEN
 }
 
 ROOM_COLOURS_DEFAULT = Fore.WHITE + Back.BLACK
@@ -31,6 +39,16 @@ class TextView:
     def initialise():
         colorama.init()
         just_fix_windows_console()
+
+class EventTextView(TextView):
+    def __init__(self, event : model.Event):
+        super().__init__()
+        self.event = event
+
+    def print(self):
+        fgbg = EVENT_COLOURS.get(self.event.type, EVENT_COLOURS[model.Event.DEFAULT])
+        print(f"{fgbg}{self.event.name} - {self.event.description} ({self.event.type}){Style.RESET_ALL}")
+
 
 class GameTextView(TextView):
     def __init__(self, game : model.RDGame):

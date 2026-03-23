@@ -4,14 +4,16 @@ from roguedungeon.model.model_enums import *
 from roguedungeon.model.model_exceptions import *
 
 
-
 class Room:
+    """Class to hold all of the details of a Room Template"""
+
     def __init__(self,
                  room_id: int,
                  name: str,
                  description: str,
                  room_type: str,
                  rarity: str,
+                 cost: int,
                  min_rank: int,
                  visible: bool,
                  unlock_room_id: int):
@@ -21,6 +23,7 @@ class Room:
         self.description = description
         self.room_type = room_type
         self.rarity = rarity
+        self.cost = cost
         self.min_rank = min_rank
         self.visible = visible
         self.unlock_room_id = unlock_room_id
@@ -28,7 +31,18 @@ class Room:
         self.resources = {}
 
     def __str__(self):
-        text = f"{self.name}: Exits "
+        """ Convert Room object to a string """
+        # Room name
+        text = f"{self.name}"
+
+        # Room cost if not 0
+        if self.cost == 1:
+            text += f" ({self.cost} gem)"
+        elif self.cost > 1:
+            text += f" ({self.cost} gems)"
+
+        # Room exits
+        text += ": Exits "
         for k, v in self.exits.items():
             if v == True:
                 text += k.value[0]
@@ -38,8 +52,6 @@ class Room:
     def add_exit(self, direction: Direction, valid: bool = True):
         self.exits[direction] = valid
 
-
-
     def get_exits(self):
         exits = []
 
@@ -48,6 +60,12 @@ class Room:
                 exits.append(direction)
 
         return exits
+
+    def get_resource(self, resource : Resource):
+        return self.resources.get(resource, 0)
+
+    def set_resource(self, resource : Resource, quantity : int = 0):
+        self.resources[resource] = quantity
 
     def add_resource(self, resource: Resource, quantity: int = 1):
         if resource in self.resources.keys():
@@ -60,7 +78,6 @@ class Room:
 
 
 class RoomFactory:
-
     rooms = None
     UNLOCKS_ROOM = {}
     UNLOCKED_BY_ROOM = {}
@@ -73,20 +90,20 @@ class RoomFactory:
     }
 
     INT_TO_RARITY = {
-        1:"Commonplace",
-        2:"Standard",
-        3:"Unusual",
-        4:"Rare"
+        1: "Commonplace",
+        2: "Standard",
+        3: "Unusual",
+        4: "Rare"
     }
 
     # Define some column names
+    ROOM_COST = "Cost"
     ROOM_VISIBLE_PROPERTY = "Visible"
     EXIT_NORTH = "North"
     EXIT_SOUTH = "South"
     EXIT_EAST = "East"
     EXIT_WEST = "West"
     UNLOCKED_BY = "UnlockedByRoomID"
-
 
     EXITS = [EXIT_NORTH, EXIT_SOUTH, EXIT_EAST, EXIT_WEST]
 
@@ -122,6 +139,7 @@ class RoomFactory:
         # Tidy up the integer columns
         int_columns = [col.value for col in Resource]
         int_columns.append(RoomFactory.UNLOCKED_BY)
+        int_columns.append(RoomFactory.ROOM_COST)
         for column in int_columns:
             df[column] = df[column].fillna(0).astype('int64')
 
@@ -132,20 +150,19 @@ class RoomFactory:
         df["Visible"] = df["UnlockedByRoomID"] == 0
 
         # Build maps of which rooms unlock another room
-        RoomFactory.UNLOCKED_BY_ROOM = df[df[RoomFactory.UNLOCKED_BY]>0][RoomFactory.UNLOCKED_BY].to_dict()
+        RoomFactory.UNLOCKED_BY_ROOM = df[df[RoomFactory.UNLOCKED_BY] > 0][RoomFactory.UNLOCKED_BY].to_dict()
         RoomFactory.UNLOCKS_ROOM = {v: k for k, v in RoomFactory.UNLOCKED_BY_ROOM.items()}
-
-        print(f"Rooms unlocked by {RoomFactory.UNLOCKED_BY_ROOM}")
-        print(f"Room unlocks {RoomFactory.UNLOCKS_ROOM}")
-
-
 
     @staticmethod
     def get_room_info(room_id: int):
         df = RoomFactory.rooms
+        # If the Room ID exists...
         if room_id in df.index:
+            # Use the room ID to get the row from the data frame
             row = df.loc[room_id]
+            # Build a Room object from the columns in the data frame
             room = RoomFactory.row_to_room(room_id, row)
+        # Else can't find the specified room ID
         else:
             room = None
             print(f"Can't find room with ID {room_id}")
@@ -161,6 +178,7 @@ class RoomFactory:
         description = row["Description"]
         room_type = row["Type"]
         rarity = row["Rarity"]
+        cost = row[RoomFactory.ROOM_COST]
         min_rank = row["MinRank"]
         visible = row[RoomFactory.ROOM_VISIBLE_PROPERTY]
         unlock_room_id = row[RoomFactory.UNLOCKED_BY]
@@ -171,6 +189,7 @@ class RoomFactory:
                         description=description,
                         room_type=room_type,
                         rarity=rarity,
+                        cost=cost,
                         min_rank=min_rank,
                         visible=visible,
                         unlock_room_id=unlock_room_id)
@@ -183,7 +202,7 @@ class RoomFactory:
         # Add the resources to the Room
         for resource in Resource:
             resource_quantity = row[resource.value]
-            if resource_quantity >0 :
+            if resource_quantity != 0:
                 new_room.add_resource(resource, resource_quantity)
 
         return new_room
@@ -203,13 +222,13 @@ class RoomFactory:
                 e = RoomFactory.row_to_room(index, row)
                 matches.append(e)
         else:
-            raise ErrorException("RoomFactory Error",f"Can't find property {property_name} in factory!")
+            raise ErrorException("RoomFactory Error", f"Can't find property {property_name} in factory!")
 
         return matches
 
     @staticmethod
     def get_matching_rooms(mandatory_exit: Direction,
-                           min_exits : int = 1,
+                           min_exits: int = 1,
                            max_exits: int = 4,
                            min_rank: int = 1,
                            max_rank: int = 9,
@@ -262,8 +281,7 @@ class RoomFactory:
                 room = RoomFactory.row_to_room(index, row)
                 matches.append(room)
         else:
-            raise ErrorException("RoomFactory Error",f"Can't find direction {direction} in factory!")
-
+            raise ErrorException("RoomFactory Error", f"Can't find direction {direction} in factory!")
 
         return matches
 
