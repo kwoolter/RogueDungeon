@@ -146,7 +146,7 @@ class MapTextView(TextView):
 
             grid_fgbg = Fore.BLACK + Back.GREEN
             blank_fgbg = Back.BLACK
-            room_fgbg = Back.LIGHTWHITE_EX + Fore.BLACK
+            room_fgbg = Back.WHITE + Fore.BLACK
             header_fgbg1 = Back.LIGHTGREEN_EX + Fore.BLACK
             header_fgbg2 = Back.GREEN + Fore.BLACK
             current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK

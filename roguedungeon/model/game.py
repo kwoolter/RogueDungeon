@@ -304,13 +304,15 @@ class RDGame:
         if self.state != RDGame.STATE_PLAYING:
             raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
 
-        # Attempt to move the player in teh specified direction
+        # Attempt to move the player in the specified direction
         self.map.move(direction)
 
         # If we have got to the end of the dungeon then set the game state to victory
         if self.map.current_room_id == Map.EXIT_END:
             self.state = RDGame.STATE_VICTORY
-            self.events.add_event(Event("Game Over", f"Victory! You have completed the Rogue Dungeon in {self.moves} moves."))
+            self.events.add_event(Event(type=Event.STATE,
+                                        name=Event.STATE_VICTORY,
+                                        description=f"Victory! You have completed the Rogue Dungeon in {self.moves} moves."))
 
     def end(self):
         self.state = RDGame.STATE_GAME_OVER

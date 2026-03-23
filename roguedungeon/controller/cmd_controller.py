@@ -45,7 +45,7 @@ class RDCLI(cmd.Cmd):
 
             # Print the final map
             v = view.MapTextView(self.game.map)
-            v.print()
+            v.print2()
 
             # Process any events that got raised
             self.process_events()
@@ -273,7 +273,7 @@ def confirm(question: str):
         else:
             print("Invalid choice.  Try again!")
 
-    return (int(choice) == 1)
+    return int(choice) == 1
 
 
 # Function to present a menu to pick an object from a list of objects

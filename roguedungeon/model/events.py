@@ -16,7 +16,7 @@ class Event():
     STATE_PLAYING = "Game Playing"
     STATE_PAUSED = "Game Paused"
     STATE_GAME_OVER = "Game Over"
-    STATE_WORLD_COMPLETE = "Game World Complete"
+    STATE_VICTORY = "Victory"
 
     # Game events
     GAME_UNLOCK_ROOM = "Unlock Room"
