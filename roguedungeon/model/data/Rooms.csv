@@ -3,8 +3,8 @@ RoomID,Name,Description,Type,Rarity,MinRank,Cost,Visible,North,South,East,West,E
 1,The Dungeon Entrance Hall,The start of the dungeon,Game,Standard,1,,0,1,,1,1,3,,,1,,,
 2,East West Passageway,A long passageway,Passageway,Commonplace,1,,1,,,1,1,2,,,,,,-1
 3,The Crossroads,A crossroads of  tunnels,Passageway,Standard,1,1,1,1,1,1,1,4,,,,,,
-4,The Nook Shop,A small shop in a nook,Shop,Standard,2,,0,,,1,,1,,,2,2,2,
-5,The Corner Shop,A shop on the bend of the  tunnel,Shop,Standard,1,,1,,1,1,,2,,,2,2,2,
+4,The Nook Shop,A small shop in a nook,Shop,Standard,2,,1,,,1,,1,,,2,2,2,
+5,The Corner Shop,A shop on the bend of the tunnel,Shop,Standard,1,,1,,1,1,,2,,,2,2,2,
 6,A Rock Cranny,A small hole in the rock,Room,Unusual,2,,1,,1,,,1,,,,,,
 7,The General Store,A large store full of odds and ends,Shop,Unusual,5,,1,,1,1,,2,,,2,2,2,
 8,Treasure Room,A room full of locked treasure chests,Room,Rare,5,,1,1,,,1,2,,10,,,10,
@@ -44,7 +44,7 @@ RoomID,Name,Description,Type,Rarity,MinRank,Cost,Visible,North,South,East,West,E
 42,A Corridor,A narrow corridor,Passageway,Commonplace,1,,1,1,1,,,2,,,,,,
 43,A Dead End,A seemingly useless dead end,Room,Commonplace,1,,1,,,,1,1,,,,,,
 44,The Embalming Room,A room littered with bandages and noxious chemicals,Room,Commonplace,1,,1,1,,,1,2,,,,,,
-45,The Workshop,A small workshop for crafting traps and devices,Room,Standard,1,1,1,,,1,1,2,,,1,,,
+45,The Workshop,A small workshop for crafting traps and devices,Shop,Standard,1,1,1,,,1,1,2,,,2,2,,
 46,The Sewer,A tunnel flooded with sewerage water,Room,Standard,1,,0,,1,1,,2,40,5,,,,
 47,The Spider Cavern,A large cavern hung with cob webs,Room,Standard,1,,1,,1,1,,2,,,,,,
 48,The Toxic Pools,A room full of bubbling pools of poisonous liquids,Room,Unusual,3,,1,1,,1,,2,,,,,,-2

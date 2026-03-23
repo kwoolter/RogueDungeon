@@ -24,6 +24,18 @@ class MapSquare:
         self.resources = copy.deepcopy(self.room.resources)
 
 
+    def get_resource(self, resource : Resource):
+        return self.resources.get(resource, 0)
+
+    def set_resource(self, resource : Resource, quantity : int = 0):
+        self.resources[resource] = quantity
+
+    def add_resource(self, resource: Resource, quantity: int = 1):
+        if resource in self.resources.keys():
+            self.resources[resource] += quantity
+        else:
+            self.resources[resource] = quantity
+
     def add_exit(self, direction: str, to_room: Room):
         self.exits[direction] = to_room
 

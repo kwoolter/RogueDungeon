@@ -14,7 +14,7 @@ class EventQueue:
         self.events.append(new_event)
 
     def pop_event(self):
-        return self.events.pop()
+        return self.events.popleft()
 
     def size(self):
         return len(self.events)
@@ -131,7 +131,7 @@ class RDGame:
 
         # Get the current square and see how much of the specified resource there is
         square = self.get_current_map_square()
-        resource_quantity = square.resources.get(resource, 0)
+        resource_quantity = square.get_resource(resource)
 
         # If there are some of the specified resources here...
         if resource_quantity > 0:
@@ -160,23 +160,25 @@ class RDGame:
                                                 name=Event.GAME_BUY_RESOURCE,
                                                 description=f"You pay {price} gold for {resource_quantity} {resource}"))
 
-            s=""
-            if resource_quantity > 1:
-                s="s"
+
 
             # Add the resources to your inventory
             self.resources[resource] += resource_quantity
 
             # Change the available resources in the square
-            square.resources[resource] -= resource_quantity
+            square.add_resource(resource,-resource_quantity)
             if square.resources[resource] == 0:
                 del square.resources[resource]
 
             # Print what just happened
+            s=""
+            if resource_quantity > 1:
+                s="s"
             self.events.add_event(Event(type=Event.GAME,
                                         name=Event.GAME_TAKE_RESOURCE,
                                         description=f"You take {resource_quantity} {resource} from {square.room.name}"))
 
+        # Else you are trying to take a resource that is not here
         else:
             raise ApplicationException("Take Resource", f"There is no {resource.value} here")
 
@@ -190,6 +192,9 @@ class RDGame:
 
 
     def get_adjacent_blank_squares(self):
+        """
+        :return: Get the list of adjacent squares that are empty
+        """
 
         if self.state != RDGame.STATE_PLAYING:
             raise ApplicationException("Cannot do that this time", f"{self.name} game in state {self.state}")
@@ -206,6 +211,12 @@ class RDGame:
         return directions
 
     def deal(self, direction):
+        """
+        Deal a list of rooms that match some search criteria
+
+        :param direction: which direction are we trying to head in
+        :return: a list of rooms that match the search criteria
+        """
 
         if self.state != RDGame.STATE_PLAYING:
             raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
@@ -258,7 +269,7 @@ class RDGame:
         return current_square.is_exit_locked(direction)
 
     def lock_random_exits(self):
-        """ Lock some random exits in the current room based"""
+        """ Lock some random exits in the current room based on some random logic"""
 
         # Get details of the current room
         current_square = self.map.get_map_square_at()
@@ -295,6 +306,11 @@ class RDGame:
         return list(current_square.locks)
 
     def unlock_exit(self, direction: Direction):
+        """
+        Attempt to unlock the exit in the specified direction
+        :param direction: which exit is to be unlocked?
+        :return:
+        """
 
         # Get details of the current room
         current_square = self.map.get_map_square_at()
@@ -324,7 +340,7 @@ class RDGame:
         current_square = self.map.get_map_square_at()
         current_room = current_square.room
 
-        # Deduct the gem cost of the room that you choose to deal
+        # Deduct the gem cost of the room that you chose to deal
         if current_room.cost > 0:
             s=""
             if current_room.cost > 1:
@@ -332,11 +348,11 @@ class RDGame:
             self.resources[Resource.GEMS] -= current_room.cost
             self.events.add_event(Event(type=Event.GAME,
                                         name=Event.GAME_SPEND_GEMS,
-                                        description=f"You spent {current_room.cost} gem{s} on {current_room.name}"))
+                                        description=f"You spent {current_room.cost} gem{s} on exploring {current_room.name}"))
 
 
         # Add the number of bonus steps gained from dealing the room
-        bonus_steps = current_room.get_resource(Resource.STEPS)
+        bonus_steps = current_square.get_resource(Resource.STEPS)
         if bonus_steps != 0:
             s=""
             if abs(bonus_steps) > 1:
@@ -345,14 +361,16 @@ class RDGame:
             # Increment our steps by the bonus
             self.resources[Resource.STEPS] += bonus_steps
 
-            # Set the room's bonus steps to 0
-            current_room.set_resource(Resource.STEPS,0)
+            # Set the square's bonus steps to 0
+            current_square.set_resource(Resource.STEPS,0)
 
             # Trigger an event if you gain or lose steps
+            # Gain steps
             if bonus_steps > 0:
                 self.events.add_event(Event(type=Event.GAME,
                                             name=Event.GAME_STEP_BONUS,
                                             description=f"You gain {bonus_steps} step{s} from exploring {current_room.name}."))
+            # Lose steps
             else:
                 self.events.add_event(Event(type=Event.GAME,
                                             name=Event.GAME_STEP_PENALTY,
