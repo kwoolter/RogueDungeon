@@ -14,9 +14,11 @@ class RDCLI(cmd.Cmd):
 
     def __init__(self):
         super().__init__(completekey='tab')
-        self._DEBUG = True
         self.game = None
         self.game_view = None
+
+        # Used to control if DEBUG Events are displayed
+        self._DEBUG = False
 
     def do_start(self, arg):
         '''Start the game'''

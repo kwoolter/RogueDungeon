@@ -31,8 +31,12 @@ class RDGame:
     STATE_VICTORY = "Victory"
     STATE_GAME_OVER = "Game Over"
 
-    GOLD_ALLOWANCE = 5
-    STEPS_ALLOWANCE = 10
+    RESOURCE_ALLOWANCE = {
+        Resource.GOLD: 5,
+        Resource.STEPS: 10,
+        Resource.GEMS: 1,
+        Resource.KEYS: 0
+    }
 
     def __init__(self, name: str):
         self.name = name
@@ -70,10 +74,10 @@ class RDGame:
         self.map = Map(self.name)
         self.map.initialise()
 
-        # Initialise the player's inventory of resources
-        self.resources = {resource: 0 for resource in Resource}
-        self.resources[Resource.GOLD] = RDGame.GOLD_ALLOWANCE
-        self.resources[Resource.STEPS] = RDGame.STEPS_ALLOWANCE
+        # Allocate the daily resource allowances
+        for resource in Resource:
+            quantity = RDGame.RESOURCE_ALLOWANCE.get(resource,0)
+            self.resources[resource] = quantity
 
         # Change the game state to show we are ready to go
         self.state = RDGame.STATE_PLAYING
@@ -122,6 +126,10 @@ class RDGame:
 
         # If there are some of the specified resources here...
         if resource_quantity > 0:
+            s=""
+            if resource_quantity > 1:
+                s="s"
+
             # Add the resources to your inventory
             self.resources[resource] += resource_quantity
             # Zap the resources from the square
