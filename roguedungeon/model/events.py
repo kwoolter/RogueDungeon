@@ -9,6 +9,8 @@ class Event():
     GAME = "Game"
     CONTROL = "control"
     EFFECT = "effect"
+    GAME_ACTION_SUCCEEDED = "Action Succeeded"
+    GAME_ACTION_FAILED = "Action Failed"
 
     # Define states
     STATE_LOADED = "Game Loaded"
@@ -18,10 +20,13 @@ class Event():
     STATE_GAME_OVER = "Game Over"
     STATE_VICTORY = "Victory"
 
+
+
     # Game events
     GAME_UNLOCK_ROOM = "Unlock Room"
     GAME_LOCK_EXIT = "Lock Exit"
     GAME_TAKE_RESOURCE = "Take Resource"
+    GAME_BUY_RESOURCE = "Buy Resource"
     GAME_SPEND_GEMS = "Spend Gems"
     GAME_EAT_FOOD = "Eat Food"
     GAME_TAKE_STEP = "Take a Step"

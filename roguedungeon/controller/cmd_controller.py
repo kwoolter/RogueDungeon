@@ -96,24 +96,27 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(e)
+            # Process any events that got raised
+            self.process_events()
 
     def do_map(self, arg):
         '''Print the game map'''
 
-        # Set up a view of the game map and print it
-        v = view.MapTextView(self.game.map)
-        #v.print()
-        v.print2()
-        print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
-
-        # Process any events that got raised
-        self.process_events()
-
         try:
-            pass
+
+            # Set up a view of the game map and print it
+            v = view.MapTextView(self.game.map)
+            #v.print()
+            v.print2()
+            print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
+
+            # Process any events that got raised
+            self.process_events()
 
         except BaseException as e:
             print(e)
+            # Process any events that got raised
+            self.process_events()
 
     def do_look(self, arg):
         '''View the current room'''
@@ -178,6 +181,8 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(e)
+            # Process any events that got raised
+            self.process_events()
 
     def do_deal(self, arg):
         '''Deal a room to explore a new square on the Map'''
@@ -220,6 +225,8 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(e)
+            # Process any events that got raised
+            self.process_events()
 
     def do_get(self, args):
         """ Get a resource from the current room"""
@@ -241,6 +248,19 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(e)
+
+            # Process any events that got raised
+            self.process_events()
+
+
+    def do_shop(self, args):
+        try:
+            pass
+        except BaseException as e:
+            print(e)
+            # Process any events that got raised
+            self.process_events()
+
 
     def move(self, direction):
         try:

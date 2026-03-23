@@ -1,9 +1,12 @@
 from enum import Enum
 
 class RoomType(Enum):
-    SHOP = 1
-    PASSAGEWAY = 2
-    EXIT = 3
+    GAME = 'Game'
+    PASSAGEWAY = 'Passageway'
+    SHOP = 'Shop'
+    ROOM = 'Room'
+    EVIL = 'Evil'
+    GOOD = 'Good'
 
 class Rarity(Enum):
     COMMONPLACE = "Commonplace"

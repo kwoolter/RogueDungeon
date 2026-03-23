@@ -26,7 +26,9 @@ EVENT_COLOURS = {
     model.Event.GAME : Back.BLACK + Fore.LIGHTWHITE_EX,
     model.Event.STATE : Back.YELLOW + Fore.BLACK,
     model.Event.DEBUG : Back.BLACK + Fore.WHITE,
-    model.Event.DEFAULT : Back.BLACK + Fore.GREEN
+    model.Event.DEFAULT : Back.BLACK + Fore.GREEN,
+    model.Event.GAME_ACTION_FAILED : Back.BLACK + Fore.RED + Style.BRIGHT,
+    model.Event.GAME_ACTION_SUCCEEDED: Back.BLACK + Fore.GREEN + Style.BRIGHT
 }
 
 ROOM_COLOURS_DEFAULT = Fore.WHITE + Back.BLACK

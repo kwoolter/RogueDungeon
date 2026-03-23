@@ -31,11 +31,20 @@ class RDGame:
     STATE_VICTORY = "Victory"
     STATE_GAME_OVER = "Game Over"
 
+    # How much of each resource do you start the game with
     RESOURCE_ALLOWANCE = {
-        Resource.GOLD: 5,
-        Resource.STEPS: 10,
+        Resource.GOLD: 20,
+        Resource.STEPS: 30,
         Resource.GEMS: 1,
-        Resource.KEYS: 0
+        Resource.KEYS: 1
+    }
+
+    # What is the price of each resource
+    RESOURCE_PRICES = {
+        Resource.GOLD: 1,
+        Resource.FOOD: 5,
+        Resource.GEMS: 5,
+        Resource.KEYS: 5
     }
 
     def __init__(self, name: str):
@@ -117,7 +126,7 @@ class RDGame:
         square = self.map.get_map_square_at()
         return list(square.resources.keys())
 
-    def take_resource(self, resource: Resource):
+    def take_resource(self, resource: Resource, pay : bool = False):
         """Take all the specified resource at the current room and add it to your inventory"""
 
         # Get the current square and see how much of the specified resource there is
@@ -126,14 +135,42 @@ class RDGame:
 
         # If there are some of the specified resources here...
         if resource_quantity > 0:
+
+            # Check if we are trying to take items from a Shop
+            if square.room.room_type == RoomType.SHOP.value:
+
+                # Find out the price of the resource
+                price = RDGame.RESOURCE_PRICES.get(resource,0)
+
+                # See if we have enough money
+                if price > self.resources[Resource.GOLD]:
+                    self.events.add_event(Event(type=Event.GAME_ACTION_FAILED,
+                                                name=Event.GAME_TAKE_RESOURCE,
+                                                description=f"You don't have enough gold to buy {resource} for {price} gold each"))
+
+                    raise ApplicationException("Take Resource Failed",
+                                               f"You don't have enough gold to buy {resource} for {price} gold each")
+
+                # If we do that decrement our gold and set resource quantity to 1 - you can only buy 1 item at a time
+                else:
+                    self.resources[Resource.GOLD] -= price
+                    resource_quantity = 1
+
+                    self.events.add_event(Event(type=Event.GAME,
+                                                name=Event.GAME_BUY_RESOURCE,
+                                                description=f"You pay {price} gold for {resource_quantity} {resource}"))
+
             s=""
             if resource_quantity > 1:
                 s="s"
 
             # Add the resources to your inventory
             self.resources[resource] += resource_quantity
-            # Zap the resources from the square
-            del square.resources[resource]
+
+            # Change the available resources in the square
+            square.resources[resource] -= resource_quantity
+            if square.resources[resource] == 0:
+                del square.resources[resource]
 
             # Print what just happened
             self.events.add_event(Event(type=Event.GAME,
@@ -141,7 +178,7 @@ class RDGame:
                                         description=f"You take {resource_quantity} {resource} from {square.room.name}"))
 
         else:
-            raise ApplicationException("", f"There is no {resource.value} here")
+            raise ApplicationException("Take Resource", f"There is no {resource.value} here")
 
         # Eat any food that you have and convert if to steps
         if self.resources[Resource.FOOD] > 0:
@@ -315,11 +352,11 @@ class RDGame:
             if bonus_steps > 0:
                 self.events.add_event(Event(type=Event.GAME,
                                             name=Event.GAME_STEP_BONUS,
-                                            description=f"You gain {bonus_steps} step{s} from dealing {current_room.name}."))
+                                            description=f"You gain {bonus_steps} step{s} from exploring {current_room.name}."))
             else:
                 self.events.add_event(Event(type=Event.GAME,
                                             name=Event.GAME_STEP_PENALTY,
-                                            description=f"You lose {abs(bonus_steps)} step{s} from dealing {current_room.name}."))
+                                            description=f"You lose {abs(bonus_steps)} step{s} from exploring {current_room.name}."))
 
 
         # Decrement the number of steps that you have left
