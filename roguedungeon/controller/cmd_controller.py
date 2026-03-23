@@ -274,6 +274,8 @@ class RDCLI(cmd.Cmd):
 
         except BaseException as e:
             print(str(e))
+            # Process any events that got raised
+            self.process_events()
 
     def game_over(self):
 

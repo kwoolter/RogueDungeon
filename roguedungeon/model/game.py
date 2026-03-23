@@ -158,7 +158,7 @@ class RDGame:
 
                     self.events.add_event(Event(type=Event.GAME,
                                                 name=Event.GAME_BUY_RESOURCE,
-                                                description=f"You pay {price} gold for {resource_quantity} {resource}"))
+                                                description=f"You pay {price} gold for {resource_quantity} {resource} at the shop"))
 
 
 
@@ -414,11 +414,20 @@ class RDGame:
         # Check that the exit from this square in the specified direction is not locked.
         square = self.get_current_map_square()
         if square.is_exit_locked(direction):
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_ACTION_FAILED,
+                                        description=f"Exit {direction} from {square.room.name} is locked."))
+
             raise ApplicationException("Exit is locked", f"Exit {direction} from {square.room.name} is locked.")
 
         # Check that you can afford the new room
         room = RoomFactory.get_room_info(room_id)
         if room.cost > self.resources[Resource.GEMS]:
+
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_ACTION_FAILED,
+                                        description=f"You don't have enough gems to buy {room.name} (cost = {room.cost})"))
+
             raise ApplicationException("Room Cost",
                                        f"You don't have enough gems to buy {room.name} (cost = {room.cost})")
 
