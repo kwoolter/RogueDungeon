@@ -21,6 +21,10 @@ The program consists of the following packages:-
 ### Model
 `model\data\Rooms.csv` [file](https://raw.githubusercontent.com/kwoolter/RogueDungeon/refs/heads/master/roguedungeon/model/data/Rooms.csv) contains the room templates data that drive the game.
 
+### View
+
+### Controller
+
 ## Screenshots
 <table>
 <tr>
