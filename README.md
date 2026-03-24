@@ -29,10 +29,10 @@ The program consists of the following packages:-
 <table>
 <tr>
 <td>
-<img height=233 width=484 src="https://github.com/kwoolter/RogueDungeon/blob/master/screenshots/Capture1.PNG" alt="game1">
+<img height=233 width=484 src="https://github.com/kwoolter/RogueDungeon/blob/master/roguedungeon/view/screenshots/Capture1.PNG" alt="Start">
 </td>
 <td>
-<img height=677 width=305 src="https://github.com/kwoolter/RogueDungeon/blob/master/screenshots/Capture2.PNG" alt="game2">
+<img height=677 width=305 src="https://github.com/kwoolter/RogueDungeon/blob/master/roguedungeon/view/screenshots/Capture2.PNG" alt="Map">
 </td>
 </tr>
 </table>
