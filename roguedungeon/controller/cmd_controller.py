@@ -214,7 +214,7 @@ class RDCLI(cmd.Cmd):
                     room = pick("Room", rooms, cancel=False)
 
                     # Deal the selected card and move to the new location
-                    print(f"Dealing {room}")
+                    print(f"Exploring {room}")
                     self.game.deal_and_move(room.room_id, direction)
 
                     # Print the new location

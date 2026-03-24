@@ -104,10 +104,23 @@ class MapSquareTextView(TextView):
 
         # If there are some resources here then display them
         if sum(self.square.resources.values())>0:
-            print("You can see: ", end="")
+
+            # If we are in a shop then you will have to pay for the items
+            if self.square.room.room_type == model.RoomType.SHOP.value:
+                text = "These items are for sale at the shop"
+            else:
+                text = "You can see"
+            print(f"{text}: ", end="")
+
+            # Print the items that are here
             for k,v in self.square.resources.items():
                 if v > 0:
                     print(f"{RESOURCE_COLOURS[k]} {k.value}:{v} {Style.RESET_ALL}", end=" ")
+
+                    # If you are in a shop then show the price of each item as well
+                    if self.square.room.room_type == model.RoomType.SHOP.value:
+                        price = model.RDGame.RESOURCE_PRICES.get(k,0)
+                        print(f"{Fore.LIGHTYELLOW_EX}{price} gold each  {Style.RESET_ALL}", end=" ")
             print()
 
 class MapTextView(TextView):
