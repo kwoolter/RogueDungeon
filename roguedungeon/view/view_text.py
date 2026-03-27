@@ -90,8 +90,13 @@ class MapSquareTextView(TextView):
         self.square = square
 
     def print(self):
+        """Pretty print the details of a MapSquare"""
+
+        # Print the name and description of the room using the room type as a colour scheme
         room_type_format = ROOM_COLOURS.get(self.square.room.room_type, ROOM_COLOURS_DEFAULT)
         print(f"{Style.BRIGHT}{room_type_format}{self.square.room.name} - {self.square.room.description}{Style.RESET_ALL}")
+
+        # Display what exists are available from the MapSquare
         for k,v in self.square.exits.items():
             if v.room_id == model.Map.EXIT_NONE:
                 pass
@@ -102,12 +107,20 @@ class MapSquareTextView(TextView):
             else:
                 print(f"Exit {k.value} leads to {v.name}")
 
+        # If there are any items here then display them
+        items = self.square.items
+        if sum(list(items.values()))>0:
+            print("You can see:")
+            for k, v in items.items():
+                if v > 0:
+                    print(f"\t{k} x {v}")
+
         # If there are some resources here then display them
         if sum(self.square.resources.values())>0:
 
             # If we are in a shop then you will have to pay for the items
             if self.square.room.room_type == model.RoomType.SHOP.value:
-                text = "These items are for sale at the shop"
+                text = f"These items are for {Back.RED+Fore.LIGHTWHITE_EX} sale {Style.RESET_ALL} at {self.square.room.name}"
             else:
                 text = "You can see"
             print(f"{text}: ", end="")
@@ -130,23 +143,33 @@ class MapTextView(TextView):
         self.map = map
 
     def print(self):
+        """ Pretty Print the current status of the Map"""
+
+        # Check that there is a map to display
         if self.map is not None:
+
+            # Print the banner
             banner = "Rogue Dungeon"
             print(f"\n{Style.BRIGHT}{banner:^32}{Style.RESET_ALL}")
 
+            # Define the colour scheme for the map components
             grid_fgbg = Fore.BLACK + Back.GREEN
             blank_fgbg = Back.BLACK
             room_fgbg = Back.LIGHTWHITE_EX + Fore.BLACK
             header_fgbg = Back.LIGHTGREEN_EX + Fore.BLACK
             current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK
 
+            # Print the X coordinate column headings
             header = "   " + header_fgbg
             for x in range(1,6):
                 header += f"|{x:^4}"
             header += "|" + Style.RESET_ALL
 
             print(header)
+
+            # Loop through each row in the map starting at the top
             for y in range(self.map.max_height - 1, -1, -1):
+
                 row = header_fgbg + f"{y+1:^3}" + grid_fgbg + "|"
                 for x in range(0, self.map.max_width):
 
@@ -170,13 +193,19 @@ class MapTextView(TextView):
 
 
     def print2(self):
+        """ New improved pretty print of the Map display"""
 
+        # Check that there is a map to display
         if self.map is not None:
-            banner = "Rogue Dungeon"
-            no_exit = [model.Map.EXIT_BLOCKED, model.Map.EXIT_NONE]
 
+            # Print the banner
+            banner = "Rogue Dungeon"
             print(f"\n{Style.BRIGHT}{banner:^36}{Style.RESET_ALL}")
 
+            # Define which exists are effectively no exits
+            no_exit = [model.Map.EXIT_BLOCKED, model.Map.EXIT_NONE]
+
+            # Define the colour scheme for each component of the Map display
             grid_fgbg = Fore.BLACK + Back.GREEN
             blank_fgbg = Back.BLACK
             room_fgbg = Back.WHITE + Fore.BLACK
@@ -184,7 +213,7 @@ class MapTextView(TextView):
             header_fgbg2 = Back.GREEN + Fore.BLACK
             current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK
 
-            # Create a map of exit direction to the character that get printed if the exit is open or closed
+            # Create a map of exit direction to the character that gets printed if the exit is open or closed
             EXIT_TO_TEXT = {
                 model.Direction.NORTH: ("  ", f"{Style.RESET_ALL}  "),
                 model.Direction.SOUTH: ("  ", f"{Style.RESET_ALL}  "),
@@ -192,7 +221,6 @@ class MapTextView(TextView):
                 model.Direction.WEST: (" ", f"{Style.RESET_ALL} ")
             }
 
-            grid = grid_fgbg + "|"
             grid = ""
 
             # Build the map header row

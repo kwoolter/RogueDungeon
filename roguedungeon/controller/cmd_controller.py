@@ -122,12 +122,18 @@ class RDCLI(cmd.Cmd):
         '''View the current room'''
         self.print()
 
+    def do_n(self, args):
+        return self.do_N(args)
+
     def do_N(self, args):
         '''Move North'''
         self.move(model.Direction.NORTH)
 
         # Process any events that got raised
         self.process_events()
+
+    def do_s(self, args):
+        return self.do_S(args)
 
     def do_S(self, args):
         '''Move South'''
@@ -136,6 +142,9 @@ class RDCLI(cmd.Cmd):
         # Process any events that got raised
         self.process_events()
 
+    def do_e(self, args):
+        return self.do_E(args)
+
     def do_E(self, args):
         '''Move East'''
         self.move(model.Direction.EAST)
@@ -143,12 +152,34 @@ class RDCLI(cmd.Cmd):
         # Process any events that got raised
         self.process_events()
 
+
+    def do_w(self, args):
+        return self.do_W(args)
+
     def do_W(self, args):
         '''Move West'''
         self.move(model.Direction.WEST)
 
         # Process any events that got raised
         self.process_events()
+
+    def do_open(self, args):
+
+        try:
+            self.game.unlock_chest()
+
+            # Process any events that got raised
+            self.process_events()
+
+
+        except BaseException as e:
+            print(e)
+            # Process any events that got raised
+            self.process_events()
+
+
+
+
 
     def do_unlock(self, args):
         """Use keys to unlock exits"""
@@ -163,7 +194,7 @@ class RDCLI(cmd.Cmd):
                 # See if you have a key to use to unlock...
                 if self.game.resources.get(model.Resource.KEYS, 0) > 0:
 
-                    # Pick teh exit that you want to unlock
+                    # Pick the exit that you want to unlock
                     direction = pick("Exit", choices, auto_pick=True)
 
                     # Unlock the selected exit

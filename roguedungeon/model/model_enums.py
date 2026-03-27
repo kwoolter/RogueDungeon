@@ -39,6 +39,14 @@ class Resource(Enum):
     def __str__(self):
         return self.value
 
+class Item(Enum):
+
+    CHEST_LOCKED = "A Locked Treasure Chest"
+    CHEST_UNLOCKED = "An Unlocked Treasure Chest"
+    SWORD = "A Bronze Sword"
+
+    def __str__(self):
+        return self.value
 
 
 def enum_value_to_key(enum_class: Enum, value: str, default=None):

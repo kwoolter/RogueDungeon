@@ -18,6 +18,7 @@ class MapSquare:
         self.exits = {}
         self.locks = set()
         self.resources = {}
+        self.items = {}
 
     def initialise(self):
         self.room = RoomFactory.get_room_info(self.room_id)
@@ -35,6 +36,19 @@ class MapSquare:
             self.resources[resource] += quantity
         else:
             self.resources[resource] = quantity
+
+
+    def get_item(self, item : Item):
+        return self.items.get(item, 0)
+
+    def set_item(self, item : Item, quantity : int = 0):
+        self.items[item] = quantity
+
+    def add_item(self, item: Item, quantity: int = 1):
+        if item in self.resources.keys():
+            self.items[item] += quantity
+        else:
+            self.items[item] = quantity
 
     def add_exit(self, direction: str, to_room: Room):
         self.exits[direction] = to_room
@@ -88,6 +102,7 @@ class Map:
         self.max_width = 5
         self.max_height = 5
         self.map = None
+        self.map_items = {}
         self.moves = 0
         self.rooms = 0
         self.current_xy = (2, 0)
@@ -132,6 +147,9 @@ class Map:
         x, y = self.current_xy
         self.set_room_at(x, y, Map.ENTRANCE)
         self.set_room_at(2, 8, Map.EXIT_END)
+
+        # Remove an items from the map
+        self.map_items = {}
 
     def move(self, direction: Direction):
         """ Attempt to move from the current square in the specified direction """
@@ -189,6 +207,28 @@ class Map:
         print(f"Map {self.name} - rooms={self.rooms}, moves={self.moves}")
         print(self.map)
 
+
+    def add_item_at(self, x: int, y: int, item : Item, quantity : int = 1):
+        """ Place a quantity of the specified item at an x,y coordinate"""
+
+        # If the specified x,y is in bounds of the map
+        if self.is_valid_xy(x, y):
+            item_dict = self.map_items.get((x,y),{})
+            if item in item_dict.keys():
+                item_dict[item] += quantity
+            else:
+                item_dict[item] = quantity
+
+            self.map_items[(x,y)] = item_dict
+
+            print(f"\tDEBUG: Item {item.value} x {quantity} added at ({x},{y})")
+        else:
+            raise ApplicationException("Add Item: Room out of bounds", f"{x}, {y} is out of bounds")
+
+    def get_items_at(self, x: int, y: int,):
+        map_items = self.map_items.get((x,y),{})
+        return map_items
+
     def set_room_at(self, x: int, y: int, room_id: int):
 
         # If the specified x,y is in bounds of the map
@@ -207,7 +247,7 @@ class Map:
 
 
         else:
-            raise ApplicationException("Set room out of bounds", f"{x}, {y} is out of bounds")
+            raise ApplicationException("Set Room: Out of bounds", f"{x}, {y} is out of bounds")
 
     def get_room_at(self, x: int = None, y: int = None):
 
@@ -256,6 +296,11 @@ class Map:
                 room_id = self.map[x, y]
                 square = MapSquare(room_id, x, y)
                 square.initialise()
+
+                # Load up any items that have been added to this square of the map
+                map_items = self.map_items.get((x,y),{})
+                for k,v in map_items.items():
+                    square.add_item(k,v)
 
                 # Store it in the cache if it is a real room
                 if room_id != Map.EXIT_UNKNOWN:
