@@ -214,14 +214,17 @@ class Map:
         # If the specified x,y is in bounds of the map
         if self.is_valid_xy(x, y):
             item_dict = self.map_items.get((x,y),{})
+            # If there is already an item of this specified type then don't add
             if item in item_dict.keys():
-                item_dict[item] += quantity
+                print(f"\tDEBUG: Already Item {item.value} at ({x},{y})")
+            # Else add
             else:
                 item_dict[item] = quantity
+                self.map_items[(x, y)] = item_dict
+                print(f"\tDEBUG: Item {item.value} x {quantity} added at ({x},{y})")
 
-            self.map_items[(x,y)] = item_dict
 
-            print(f"\tDEBUG: Item {item.value} x {quantity} added at ({x},{y})")
+
         else:
             raise ApplicationException("Add Item: Room out of bounds", f"{x}, {y} is out of bounds")
 

@@ -83,9 +83,10 @@ class RDGame:
         self.map = Map(self.name)
         self.map.initialise()
 
-        # Add some items to the map
-        item = Item.CHEST_LOCKED
+        # Add some random items to the map
+        items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.SWORD]
         for i in range(10):
+            item = random.choice(items)
             self.map.add_item_at(random.randint(0, self.map.max_width - 1),
                                  random.randint(0, self.map.max_height - 1),
                                  item)
@@ -130,8 +131,10 @@ class RDGame:
         return square
 
     def get_square_resources(self):
+        """ Return a list of non-zero resources that are present at this square"""
         square = self.map.get_map_square_at()
-        return list(square.resources.keys())
+        resources = [k for k,v in square.resources.items() if v>0]
+        return resources
 
     def take_resource(self, resource: Resource, pay: bool = False):
         """Take all the specified resource at the current room and add it to your inventory"""
@@ -335,6 +338,42 @@ class RDGame:
                                            f"You don't have any keys to unlock the {direction} exit from {current_square.room.name}")
         else:
             raise ApplicationException("Unlock Exit", f"Exit {direction} from {current_square.room.name} is not locked")
+
+    def dig(self):
+        """ Attempt to dig at the current location"""
+
+        # Get the details of the current square
+        square = self.get_current_map_square()
+
+        # Is there a some soft earth here?
+        if square.get_item(Item.SOFT_EARTH) > 0:
+
+            # See if you have a spade (TBC)...
+            if True:
+                square.set_item(Item.SOFT_EARTH, 0)
+                square.add_item(Item.EMPTY_HOLE, 1)
+                self.events.add_event(Event(type=Event.GAME,
+                                            name=Event.GAME_ACTION_SUCCEEDED,
+                                            description=f"You dig a hole in the soft earth"))
+
+                # Allocate some random rewards
+                rewards = {Resource.GOLD: random.randint(0, 3),
+                           Resource.GEMS: random.randint(0, 3),
+                           Resource.KEYS: random.randint(0, 3)}
+
+                for k, v in rewards.items():
+                    square.add_resource(k, v)
+                    if v > 0:
+                        self.events.add_event(Event(type=Event.GAME,
+                                                    name=Event.GAME_ACTION_SUCCEEDED,
+                                                    description=f"You find {k.value} x {v} in the hole"))
+
+
+        # If not then we can't dig
+        else:
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_ACTION_FAILED,
+                                        description=f"The ground is too hard to dig here"))
 
     def unlock_chest(self):
         """ Attempt to unlock a chest at the current location """

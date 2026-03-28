@@ -163,14 +163,27 @@ class RDCLI(cmd.Cmd):
         # Process any events that got raised
         self.process_events()
 
+    def do_dig(self, args):
+        """ Try digging at the current location"""
+
+        try:
+            self.game.dig()
+            # Process any events that got raised
+            self.process_events()
+
+        except BaseException as e:
+            print(e)
+            # Process any events that got raised
+            self.process_events()
+
     def do_open(self, args):
+        """ Try opening a treasure chest at the current location """
 
         try:
             self.game.unlock_chest()
 
             # Process any events that got raised
             self.process_events()
-
 
         except BaseException as e:
             print(e)

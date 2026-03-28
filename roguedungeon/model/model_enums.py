@@ -43,6 +43,8 @@ class Item(Enum):
 
     CHEST_LOCKED = "A Locked Treasure Chest"
     CHEST_UNLOCKED = "An Unlocked Treasure Chest"
+    SOFT_EARTH = "A patch of soft earth"
+    EMPTY_HOLE = "An empty hole in the ground"
     SWORD = "A Bronze Sword"
 
     def __str__(self):
