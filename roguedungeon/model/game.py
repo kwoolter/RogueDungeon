@@ -86,7 +86,8 @@ class RDGame:
         self.map.initialise()
 
         # Add some random usable items to the map
-        items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.ROCK_OUTCROP, Item.RUBBISH, Item.WOOD, Item.STONE_TABLET]
+        items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.ROCK_OUTCROP, Item.RUBBISH, Item.WOOD,
+                 Item.STONE_TABLET, Item.THIEF, Item.BED]
         for i in range(10):
             item = random.choice(items)
             self.map.add_item_at(random.randint(0, self.map.max_width - 1),
@@ -574,7 +575,8 @@ class RDGame:
         self.map.set_room_at(x, y, room_id)
 
         # Move the player to the new room
-        self.map.move(direction)
+        #self.map.move(direction)
+        self.move(direction)
 
         # Run any logic that needs to be done after a new room has been dealt
         self.post_deal_processing()
@@ -585,6 +587,26 @@ class RDGame:
 
         # Attempt to move the player in the specified direction
         self.map.move(direction)
+
+        # Add any effects from items in the current square
+        current_square = self.map.get_map_square_at()
+
+        # Loop through the available item effects
+        for item, (resource, quantity) in ITEM_TO_EFFECT.items():
+
+            # If the item is here then add the effect
+            if current_square.get_item(item) > 0:
+
+                # Add effect on your resources
+                self.resources[resource] += quantity
+
+                # Log an event
+                s = "gives"
+                if quantity < 0:
+                    s = "takes"
+                self.events.add_event(Event(type=Event.GAME,
+                                            name=Event.GAME_ITEM_BONUS,
+                                            description=f"As you enter {current_square.room.name} {item} {s} {abs(quantity)} x {resource}"))
 
         # Decrement the number of steps that you have left
         self.resources[Resource.STEPS] -= 1

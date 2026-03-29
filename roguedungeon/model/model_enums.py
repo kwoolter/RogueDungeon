@@ -56,6 +56,9 @@ class Item(Enum):
     TORCH = "a burning torch"
     STONE_TABLET = "a carved stone tablet"
     MAGICAL_STONE = "a magical stone"
+    BED = "a simple bed"
+    THIEF = "a thieving Gnome"
+    THIEF_DEAD = "a dead Gnome"
 
     def __str__(self):
         return self.value
@@ -66,8 +69,16 @@ ITEM_TO_REWARDS = {
     Item.SOFT_EARTH : (Item.SHOVEL, "dig", Item.EMPTY_HOLE, (Resource.GOLD, Resource.FOOD)),
     Item.ROCK_OUTCROP : (Item.PICKAXE, "mine", None, (Resource.GOLD, Resource.GEMS)),
     Item.WOOD : (Item.TORCH, "light", Item.FIRE, ()),
-    Item.STONE_TABLET : (Item.BOOK, "translate", Item.MAGICAL_STONE, ())
+    Item.STONE_TABLET : (Item.BOOK, "translate", Item.MAGICAL_STONE, ()),
+    Item.THIEF : (Item.SWORD, "kill", Item.THIEF_DEAD, (Resource.GOLD, Resource.GEMS)),
     }
+
+ITEM_TO_EFFECT = {
+    Item.MAGICAL_STONE: (Resource.STEPS, 2),
+    Item.FIRE : (Resource.STEPS, 2),
+    Item.BED : (Resource.STEPS, 3),
+    Item.THIEF : (Resource.GOLD, -2)
+}
 
 COLLECTABLE_ITEMS = {Item.SHOVEL, Item.TORCH, Item.PICKAXE, Item.BOOK, Item.SWORD}
 
