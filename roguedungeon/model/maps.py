@@ -44,11 +44,11 @@ class MapSquare:
     def get_items(self):
         return list(self.items.keys())
 
-    def set_item(self, item : Item, quantity : int = 0):
+    def set_item(self, item : Item, quantity : int = 1):
         self.items[item] = quantity
 
     def add_item(self, item: Item, quantity: int = 1):
-        if item in self.resources.keys():
+        if item in self.items.keys():
             self.items[item] += quantity
         else:
             self.items[item] = quantity

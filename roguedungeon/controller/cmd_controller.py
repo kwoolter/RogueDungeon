@@ -163,19 +163,6 @@ class RDCLI(cmd.Cmd):
         # Process any events that got raised
         self.process_events()
 
-    def do_dig(self, args):
-        """ Try digging at the current location"""
-
-        try:
-            self.game.dig()
-            # Process any events that got raised
-            self.process_events()
-
-        except BaseException as e:
-            print(e)
-            # Process any events that got raised
-            self.process_events()
-
     def do_use(self, args):
         """ Try using an item that you hold to interact with another item at this location at the current location"""
 
@@ -191,23 +178,6 @@ class RDCLI(cmd.Cmd):
             print(e)
             # Process any events that got raised
             self.process_events()
-
-    def do_open(self, args):
-        """ Try opening a treasure chest at the current location """
-
-        try:
-            self.game.unlock_chest()
-
-            # Process any events that got raised
-            self.process_events()
-
-        except BaseException as e:
-            print(e)
-            # Process any events that got raised
-            self.process_events()
-
-
-
 
 
     def do_unlock(self, args):
@@ -293,6 +263,8 @@ class RDCLI(cmd.Cmd):
         try:
             # See what resources are available at the current square
             resources = self.game.get_square_resources()
+            items = model.COLLECTABLE_ITEMS.intersection(self.game.get_square_items())
+            resources.extend(list(items))
 
             # Pick the resource that you want to get
             resource = pick("Item", resources, auto_pick=True)
@@ -300,8 +272,14 @@ class RDCLI(cmd.Cmd):
             # If a valid selection was made...
             if resource is not None:
 
-                # Take the selected resource
-                self.game.take_resource(resource)
+                if type(resource) == model.Resource:
+                    # Take the selected resource
+                    self.game.take_resource(resource)
+                elif type(resource) == model.Item:
+                    # Take the selected item
+                    self.game.take_item(resource)
+                else:
+                    print(f"Can't take {resource} of type {type(resource)}")
 
             # Process any events that got raised
             self.process_events()

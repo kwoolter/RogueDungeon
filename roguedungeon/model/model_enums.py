@@ -69,6 +69,8 @@ ITEM_TO_REWARDS = {
     Item.STONE_TABLET : (Item.BOOK, "translate", Item.MAGICAL_STONE, ())
     }
 
+COLLECTABLE_ITEMS = {Item.SHOVEL, Item.TORCH, Item.PICKAXE, Item.BOOK, Item.SWORD}
+
 def enum_value_to_key(enum_class: Enum, value: str, default=None):
     result = default
     try:

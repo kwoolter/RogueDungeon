@@ -85,13 +85,21 @@ class RDGame:
         self.map = Map(self.name)
         self.map.initialise()
 
-        # Add some random items to the map
+        # Add some random usable items to the map
         items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.ROCK_OUTCROP, Item.RUBBISH, Item.WOOD, Item.STONE_TABLET]
-        for i in range(20):
+        for i in range(10):
             item = random.choice(items)
             self.map.add_item_at(random.randint(0, self.map.max_width - 1),
                                  random.randint(0, self.map.max_height - 1),
                                  item)
+
+        # Add 1 of each of the collectable items to the map
+        equipment = COLLECTABLE_ITEMS
+        for e in equipment:
+            self.map.add_item_at(random.randint(0, self.map.max_width - 1),
+                                 random.randint(0, self.map.max_height - 1),
+                                 e)
+
 
         # Allocate the daily resource allowances
         for resource in Resource:
@@ -106,7 +114,12 @@ class RDGame:
 
         # DEBUG hacks
         if self._debug:
-            self.inventory = {Item.PICKAXE, Item.SHOVEL, Item.TORCH, Item.BOOK}
+
+
+            # Add some items to near your starting location
+            equipment = COLLECTABLE_ITEMS
+            for e in equipment:
+                self.map.add_item_at(2,1,e)
             for item in items:
                 self.map.add_item_at(2,1, item)
 
@@ -184,7 +197,7 @@ class RDGame:
                     self.resources[Resource.GOLD] -= price
                     resource_quantity = 1
 
-                    self.events.add_event(Event(type=Event.GAME,
+                    self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
                                                 name=Event.GAME_BUY_RESOURCE,
                                                 description=f"You pay {price} gold for {resource_quantity} {resource} at the shop"))
 
@@ -200,7 +213,7 @@ class RDGame:
             s = ""
             if resource_quantity > 1:
                 s = "s"
-            self.events.add_event(Event(type=Event.GAME,
+            self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
                                         name=Event.GAME_TAKE_RESOURCE,
                                         description=f"You take {resource_quantity} {resource} from {square.room.name}"))
 
@@ -212,7 +225,7 @@ class RDGame:
         if self.resources[Resource.FOOD] > 0:
             self.resources[Resource.STEPS] += self.resources[Resource.FOOD]
             self.resources[Resource.FOOD] = 0
-            self.events.add_event(Event(type=Event.GAME,
+            self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
                                         name=Event.GAME_EAT_FOOD,
                                         description=f"You eat {resource_quantity} food and now have {self.resources[Resource.STEPS]} steps"))
 
@@ -358,6 +371,26 @@ class RDGame:
         else:
             raise ApplicationException("Unlock Exit", f"Exit {direction} from {current_square.room.name} is not locked")
 
+
+    def take_item(self, item : Item):
+
+        # Get the current square and see how much of the specified item there is
+        square = self.get_current_map_square()
+        resource_quantity = square.get_item(item)
+
+        # If there are some of the specified resources here...
+        if resource_quantity > 0:
+            self.inventory.add(item)
+            square.set_item(item, 0)
+            self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
+                                        name=Event.GAME_TAKE_ITEM,
+                                        description=f"You take {item} from {square.room.name}"))
+
+        # Else you are trying to take a resource that is not here
+        else:
+            raise ApplicationException("Take Item", f"There is no {item.value} here")
+
+
     def use_item(self, item : Item):
         """ Attempt to dig at the current location"""
 
@@ -373,81 +406,69 @@ class RDGame:
                 # Parse what item is required to use, what item is left if successful, what types of reward do you get
                 item_required, verb, item_left, rewards = ITEM_TO_REWARDS.get(item, (0, 0, []))
 
+                # Check if we own the required resource or item
+                if type(item_required) == Resource:
+                    is_item_require_owned = self.resources.get(item_required,0) > 0
+                elif type(item_required) == Item:
+                    is_item_require_owned = item_required in self.inventory
+                else:
+                    is_item_require_owned = False
+
 
                 # See if you have the required item...
-                if item_required in self.inventory:
+                if is_item_require_owned == True:
+
+                    # Remove the item that you used from the map square
                     square.set_item(item, 0)
+
+                    # If you required a resource then decrement
+                    if type(item_required) == Resource:
+                        self.resources[item_required] -= 1
+
+                    # Replace with the new item
                     if item_left is not None:
                         square.add_item(item_left, 1)
 
-                    self.events.add_event(Event(type=Event.GAME,
-                                                name=Event.GAME_ACTION_SUCCEEDED,
+                    # Log an event
+                    self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
+                                                name=Event.GAME_USE_ITEM,
                                                 description=f"You use {item_required} to {verb} {item}"))
 
                     # Allocate some random rewards
+                    total_rewards = 0
                     for reward in rewards:
                         quantity = random.randint(0, 3)
+                        total_rewards += quantity
                         if quantity > 0:
                             square.add_resource(reward, quantity)
-                            self.events.add_event(Event(type=Event.GAME,
-                                                        name=Event.GAME_ACTION_SUCCEEDED,
+                            self.events.add_event(Event(type=Event.GAME_ACTION_SUCCEEDED,
+                                                        name=Event.GAME_USE_ITEM,
                                                         description=f"You find {reward} x {quantity}"))
+
+                    # If there were rewards on offer but you didn't find anything...
+                    if total_rewards == 0 and len(rewards) > 0:
+                        self.events.add_event(Event(type=Event.GAME_ACTION_FAILED,
+                                                    name=Event.GAME_USE_ITEM,
+                                                    description=f"You didn't find anything"))
+
                 # You don't have the required item
                 else:
-                    self.events.add_event(Event(type=Event.GAME,
-                                                name=Event.GAME_ACTION_FAILED,
-                                                description=f"You don't have the right equipment ({item_required})"))
+                    self.events.add_event(Event(type=Event.GAME_ACTION_FAILED,
+                                                name=Event.GAME_USE_ITEM,
+                                                description=f"You don't have the right equipment to {verb} {item}"))
 
             # There is nothing special about the item that you want to use
             else:
-                self.events.add_event(Event(type=Event.GAME,
-                                            name=Event.GAME_ACTION_FAILED,
+                self.events.add_event(Event(type=Event.GAME_ACTION_FAILED,
+                                            name=Event.GAME_USE_ITEM,
                                             description=f"You can't do anything with {item}"))
 
 
         # If not then error
         else:
-            self.events.add_event(Event(type=Event.GAME,
-                                        name=Event.GAME_ACTION_FAILED,
+            self.events.add_event(Event(type=Event.GAME_ACTION_FAILED,
+                                        name=Event.GAME_USE_ITEM,
                                         description=f"There is no {item} here"))
-
-    def unlock_chest(self):
-        """ Attempt to unlock a chest at the current location """
-
-        # Get the details of the current square
-        square = self.get_current_map_square()
-
-        # Is there a locked chest here?
-        if square.get_item(Item.CHEST_LOCKED) > 0:
-
-            # See if you have a key to use to unlock...
-            if self.resources.get(Resource.KEYS, 0) > 0:
-                square.set_item(Item.CHEST_LOCKED, 0)
-                square.add_item(Item.CHEST_UNLOCKED, 1)
-                self.events.add_event(Event(type=Event.GAME,
-                                            name=Event.GAME_ACTION_SUCCEEDED,
-                                            description=f"You use a key to open {Item.CHEST_LOCKED.value}"))
-
-                # Allocate some random rewards
-                rewards = {Resource.GOLD: random.randint(0, 3),
-                           Resource.GEMS: random.randint(0, 3),
-                           Resource.KEYS: random.randint(0, 3)}
-
-                for k, v in rewards.items():
-                    square.add_resource(k, v)
-                    if v > 0:
-                        self.events.add_event(Event(type=Event.GAME,
-                                                    name=Event.GAME_ACTION_SUCCEEDED,
-                                                    description=f"You find {k.value} x {v} in the chest"))
-
-            else:
-                self.events.add_event(Event(type=Event.GAME,
-                                            name=Event.GAME_ACTION_FAILED,
-                                            description=f"You don't have a key to open {Item.CHEST_LOCKED.value}"))
-        else:
-            self.events.add_event(Event(type=Event.GAME,
-                                        name=Event.GAME_ACTION_FAILED,
-                                        description=f"Nothing to open here"))
 
     def post_deal_processing(self):
         """Put any logic here that you want to kick-in once a new room card has been selected """
