@@ -21,7 +21,7 @@ class RDCLI(cmd.Cmd):
         self._DEBUG = False
 
     def do_start(self, arg):
-        '''Start the game'''
+        """Start the game"""
 
         # Create and initialise the game
         self.game = model.RDGame("Rogue Dungeon")
@@ -37,7 +37,7 @@ class RDCLI(cmd.Cmd):
         self.process_events()
 
     def do_quit(self, arg):
-        '''Finish the current game'''
+        """Finish the current game"""
 
         # Check if the player wants to quit
         if confirm("Are you sure you want to quit?") == True:
@@ -63,6 +63,7 @@ class RDCLI(cmd.Cmd):
             return False
 
     def run(self):
+        """Run the CLI loop"""
         self.cmdloop()
 
     def process_events(self):
@@ -73,7 +74,6 @@ class RDCLI(cmd.Cmd):
 
             # Print the event
             if event.type != Event.DEBUG or self._DEBUG is True:
-
                 v = view.EventTextView(event)
                 v.print()
 
@@ -84,7 +84,7 @@ class RDCLI(cmd.Cmd):
             self.game_over()
 
     def do_status(self, arg):
-        '''Print the status of game'''
+        """Print the status of game"""
         try:
 
             if self.game is not None:
@@ -100,13 +100,13 @@ class RDCLI(cmd.Cmd):
             self.process_events()
 
     def do_map(self, arg):
-        '''Print the game map'''
+        """Print the game map"""
 
         try:
 
             # Set up a view of the game map and print it
             v = view.MapTextView(self.game.map)
-            #v.print()
+            # v.print()
             v.print2()
             print(f"\nRooms = {self.game.map.rooms}, Moves = {self.game.map.moves}")
 
@@ -119,52 +119,55 @@ class RDCLI(cmd.Cmd):
             self.process_events()
 
     def do_look(self, arg):
-        '''View the current room'''
+        """Take a look around the current room"""
         self.print()
 
     def do_n(self, args):
+        """Move North"""
         return self.do_N(args)
 
     def do_N(self, args):
-        '''Move North'''
+        """Move North"""
         self.move(model.Direction.NORTH)
 
         # Process any events that got raised
         self.process_events()
 
     def do_s(self, args):
+        """Move South"""
         return self.do_S(args)
 
     def do_S(self, args):
-        '''Move South'''
+        """Move South"""
         self.move(model.Direction.SOUTH)
 
         # Process any events that got raised
         self.process_events()
 
     def do_e(self, args):
+        """Move East"""
         return self.do_E(args)
 
     def do_E(self, args):
-        '''Move East'''
+        """Move East"""
         self.move(model.Direction.EAST)
 
         # Process any events that got raised
         self.process_events()
 
-
     def do_w(self, args):
+        """Move West"""
         return self.do_W(args)
 
     def do_W(self, args):
-        '''Move West'''
+        """Move West"""
         self.move(model.Direction.WEST)
 
         # Process any events that got raised
         self.process_events()
 
     def do_use(self, args):
-        """ Try using an item that you hold to interact with another item at this location at the current location"""
+        """ Try interacting with something that you can see at the current location"""
 
         try:
             items = self.game.get_square_items()
@@ -178,7 +181,6 @@ class RDCLI(cmd.Cmd):
             print(e)
             # Process any events that got raised
             self.process_events()
-
 
     def do_unlock(self, args):
         """Use keys to unlock exits"""
@@ -215,7 +217,7 @@ class RDCLI(cmd.Cmd):
             self.process_events()
 
     def do_deal(self, arg):
-        '''Deal a room to explore a new square on the Map'''
+        """Deal a room to explore a new square on the Map"""
 
         try:
 
@@ -289,16 +291,6 @@ class RDCLI(cmd.Cmd):
 
             # Process any events that got raised
             self.process_events()
-
-
-    def do_shop(self, args):
-        try:
-            pass
-        except BaseException as e:
-            print(e)
-            # Process any events that got raised
-            self.process_events()
-
 
     def move(self, direction):
         try:

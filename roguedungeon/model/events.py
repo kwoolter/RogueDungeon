@@ -34,7 +34,7 @@ class Event():
     GAME_TAKE_STEP = "Take a Step"
     GAME_STEP_BONUS = "Step Bonus"
     GAME_STEP_PENALTY = "Step Penalty"
-    GAME_ITEM_BONUS = "Item Bonus"
+    GAME_ITEM_BONUS = "Item Effect"
     GAME_ITEM_PENALTY = "Item Penalty"
 
 

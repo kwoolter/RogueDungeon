@@ -514,12 +514,6 @@ class RDGame:
                                             name=Event.GAME_STEP_PENALTY,
                                             description=f"You lose {abs(bonus_steps)} step{s} from exploring {current_room.name}."))
 
-        # Decrement the number of steps that you have left
-        self.resources[Resource.STEPS] -= 1
-        self.events.add_event(Event(type=Event.DEBUG,
-                                    name=Event.GAME_TAKE_STEP,
-                                    description=f"You have {self.resources[Resource.STEPS]} steps left."))
-
         # If you have run out of steps then it is game over!
         if self.resources[Resource.STEPS] <= 0:
             self.state = RDGame.STATE_GAME_OVER

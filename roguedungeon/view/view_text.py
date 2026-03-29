@@ -7,7 +7,7 @@ from colorama import just_fix_windows_console
 ROOM_COLOURS = {
 
     "Shop": Fore.BLACK + Back.YELLOW,
-    "Game": Fore.WHITE + Back.BLACK,
+    "Game": Fore.LIGHTWHITE_EX + Back.BLACK,
     "Room": Fore.BLUE + Back.BLACK,
     "Passageway": Fore.BLACK + Back.MAGENTA,
     "Good" : Fore.BLACK + Back.LIGHTGREEN_EX,
