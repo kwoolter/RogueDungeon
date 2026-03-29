@@ -41,15 +41,33 @@ class Resource(Enum):
 
 class Item(Enum):
 
-    CHEST_LOCKED = "A Locked Treasure Chest"
-    CHEST_UNLOCKED = "An Unlocked Treasure Chest"
-    SOFT_EARTH = "A patch of soft earth"
-    EMPTY_HOLE = "An empty hole in the ground"
-    SWORD = "A Bronze Sword"
+    CHEST_LOCKED = "a locked treasure chest"
+    CHEST_UNLOCKED = "an unlocked treasure chest"
+    SOFT_EARTH = "a patch of soft earth"
+    EMPTY_HOLE = "an empty hole in the ground"
+    ROCK_OUTCROP = "an outcrop of rock"
+    RUBBISH = "a pile of rubbish"
+    BOOK = "a dusty old book"
+    WOOD = "some dry wood"
+    FIRE = "a warm fire"
+    SWORD = "a bronze sword"
+    SHOVEL = "a shovel"
+    PICKAXE = "a pick axe"
+    TORCH = "a burning torch"
+    STONE_TABLET = "a carved stone tablet"
+    MAGICAL_STONE = "a magical stone"
 
     def __str__(self):
         return self.value
 
+
+ITEM_TO_REWARDS = {
+    Item.CHEST_LOCKED : (Resource.KEYS, "unlock", Item.CHEST_UNLOCKED, (Resource.GOLD, Resource.GEMS, Resource.KEYS)),
+    Item.SOFT_EARTH : (Item.SHOVEL, "dig", Item.EMPTY_HOLE, (Resource.GOLD, Resource.FOOD)),
+    Item.ROCK_OUTCROP : (Item.PICKAXE, "mine", None, (Resource.GOLD, Resource.GEMS)),
+    Item.WOOD : (Item.TORCH, "light", Item.FIRE, ()),
+    Item.STONE_TABLET : (Item.BOOK, "translate", Item.MAGICAL_STONE, ())
+    }
 
 def enum_value_to_key(enum_class: Enum, value: str, default=None):
     result = default

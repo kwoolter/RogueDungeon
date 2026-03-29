@@ -52,8 +52,10 @@ class RDGame:
         self.map = None
         self.state = RDGame.STATE_LOADED
         self.resources = {}
+        self.inventory = set()
         self.events = EventQueue()
         self.deck = None
+        self._debug = True
 
     @property
     def rooms(self):
@@ -84,8 +86,8 @@ class RDGame:
         self.map.initialise()
 
         # Add some random items to the map
-        items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.SWORD]
-        for i in range(10):
+        items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.ROCK_OUTCROP, Item.RUBBISH, Item.WOOD, Item.STONE_TABLET]
+        for i in range(20):
             item = random.choice(items)
             self.map.add_item_at(random.randint(0, self.map.max_width - 1),
                                  random.randint(0, self.map.max_height - 1),
@@ -96,8 +98,18 @@ class RDGame:
             quantity = RDGame.RESOURCE_ALLOWANCE.get(resource, 0)
             self.resources[resource] = quantity
 
+        # Clear out the inventory
+        self.inventory = set()
+
         # Change the game state to show we are ready to go
         self.state = RDGame.STATE_PLAYING
+
+        # DEBUG hacks
+        if self._debug:
+            self.inventory = {Item.PICKAXE, Item.SHOVEL, Item.TORCH, Item.BOOK}
+            for item in items:
+                self.map.add_item_at(2,1, item)
+
 
     @property
     def current_room_id(self):
@@ -129,6 +141,12 @@ class RDGame:
         square = self.map.get_map_square_at()
 
         return square
+
+    def get_square_items(self):
+        """ Return a list of non-zero items that are present at this square"""
+        square = self.map.get_map_square_at()
+        items = [k for k,v in square.items.items() if v>0]
+        return items
 
     def get_square_resources(self):
         """ Return a list of non-zero resources that are present at this square"""
@@ -333,47 +351,65 @@ class RDGame:
                 self.resources[Resource.KEYS] -= 1
                 # print(f"\tYou used a key to unlock the {direction.value} from {current_square.room.name}")
 
+            # You don't have a key
             else:
                 raise ApplicationException("Unlock Exit",
                                            f"You don't have any keys to unlock the {direction} exit from {current_square.room.name}")
         else:
             raise ApplicationException("Unlock Exit", f"Exit {direction} from {current_square.room.name} is not locked")
 
-    def dig(self):
+    def use_item(self, item : Item):
         """ Attempt to dig at the current location"""
 
         # Get the details of the current square
         square = self.get_current_map_square()
 
-        # Is there a some soft earth here?
-        if square.get_item(Item.SOFT_EARTH) > 0:
+        # Is there the specified item here?
+        if square.get_item(item) > 0:
 
-            # See if you have a spade (TBC)...
-            if True:
-                square.set_item(Item.SOFT_EARTH, 0)
-                square.add_item(Item.EMPTY_HOLE, 1)
+            # Get how to handle this item
+            if item in ITEM_TO_REWARDS.keys():
+
+                # Parse what item is required to use, what item is left if successful, what types of reward do you get
+                item_required, verb, item_left, rewards = ITEM_TO_REWARDS.get(item, (0, 0, []))
+
+
+                # See if you have the required item...
+                if item_required in self.inventory:
+                    square.set_item(item, 0)
+                    if item_left is not None:
+                        square.add_item(item_left, 1)
+
+                    self.events.add_event(Event(type=Event.GAME,
+                                                name=Event.GAME_ACTION_SUCCEEDED,
+                                                description=f"You use {item_required} to {verb} {item}"))
+
+                    # Allocate some random rewards
+                    for reward in rewards:
+                        quantity = random.randint(0, 3)
+                        if quantity > 0:
+                            square.add_resource(reward, quantity)
+                            self.events.add_event(Event(type=Event.GAME,
+                                                        name=Event.GAME_ACTION_SUCCEEDED,
+                                                        description=f"You find {reward} x {quantity}"))
+                # You don't have the required item
+                else:
+                    self.events.add_event(Event(type=Event.GAME,
+                                                name=Event.GAME_ACTION_FAILED,
+                                                description=f"You don't have the right equipment ({item_required})"))
+
+            # There is nothing special about the item that you want to use
+            else:
                 self.events.add_event(Event(type=Event.GAME,
-                                            name=Event.GAME_ACTION_SUCCEEDED,
-                                            description=f"You dig a hole in the soft earth"))
-
-                # Allocate some random rewards
-                rewards = {Resource.GOLD: random.randint(0, 3),
-                           Resource.GEMS: random.randint(0, 3),
-                           Resource.KEYS: random.randint(0, 3)}
-
-                for k, v in rewards.items():
-                    square.add_resource(k, v)
-                    if v > 0:
-                        self.events.add_event(Event(type=Event.GAME,
-                                                    name=Event.GAME_ACTION_SUCCEEDED,
-                                                    description=f"You find {k.value} x {v} in the hole"))
+                                            name=Event.GAME_ACTION_FAILED,
+                                            description=f"You can't do anything with {item}"))
 
 
-        # If not then we can't dig
+        # If not then error
         else:
             self.events.add_event(Event(type=Event.GAME,
                                         name=Event.GAME_ACTION_FAILED,
-                                        description=f"The ground is too hard to dig here"))
+                                        description=f"There is no {item} here"))
 
     def unlock_chest(self):
         """ Attempt to unlock a chest at the current location """

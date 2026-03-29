@@ -176,6 +176,22 @@ class RDCLI(cmd.Cmd):
             # Process any events that got raised
             self.process_events()
 
+    def do_use(self, args):
+        """ Try using an item that you hold to interact with another item at this location at the current location"""
+
+        try:
+            items = self.game.get_square_items()
+            item = pick("Item", items, auto_pick=True)
+            if item is not None:
+                self.game.use_item(item)
+                # Process any events that got raised
+                self.process_events()
+
+        except BaseException as e:
+            print(e)
+            # Process any events that got raised
+            self.process_events()
+
     def do_open(self, args):
         """ Try opening a treasure chest at the current location """
 

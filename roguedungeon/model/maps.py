@@ -41,6 +41,9 @@ class MapSquare:
     def get_item(self, item : Item):
         return self.items.get(item, 0)
 
+    def get_items(self):
+        return list(self.items.keys())
+
     def set_item(self, item : Item, quantity : int = 0):
         self.items[item] = quantity
 

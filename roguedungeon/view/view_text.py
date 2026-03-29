@@ -65,6 +65,9 @@ class GameTextView(TextView):
         for k, v in self.game.resources.items():
             print(f"{RESOURCE_COLOURS[k]} {k.value}:{v} {Style.RESET_ALL}", end=" ")
         print()
+        for item in self.game.inventory:
+            print(f"\t{str(item).capitalize()}")
+
 
         print(f"State: {self.game.state}  |  Rooms: {self.game.rooms}  |  Moves: {self.game.moves}\n")
 
@@ -113,7 +116,7 @@ class MapSquareTextView(TextView):
             print("You can see:")
             for k, v in items.items():
                 if v > 0:
-                    print(f"\t{k} x {v}")
+                    print(f"\t{str(k).capitalize()}")
 
         # If there are some resources here then display them
         if sum(self.square.resources.values())>0:
