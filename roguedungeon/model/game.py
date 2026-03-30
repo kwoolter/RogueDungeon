@@ -95,11 +95,15 @@ class RDGame:
                                  item)
 
         # Add 1 of each of the collectable items to the map
-        equipment = COLLECTABLE_ITEMS
-        for e in equipment:
-            self.map.add_item_at(random.randint(0, self.map.max_width - 1),
-                                 random.randint(0, self.map.max_height - 1),
-                                 e)
+        for e in COLLECTABLE_ITEMS:
+            # Ignore items that are allocated to a specific room
+            if e in ITEM_TO_ROOM_ID.keys():
+                pass
+            # Randomly allocate the collectable item
+            else:
+                self.map.add_item_at(random.randint(0, self.map.max_width - 1),
+                                     random.randint(0, self.map.max_height - 1),
+                                     e)
 
 
         # Allocate the daily resource allowances
@@ -116,13 +120,11 @@ class RDGame:
         # DEBUG hacks
         if self._debug:
 
-
             # Add some items to near your starting location
-            equipment = COLLECTABLE_ITEMS
-            for e in equipment:
+            for e in COLLECTABLE_ITEMS:
                 self.map.add_item_at(2,1,e)
             for item in items:
-                self.map.add_item_at(2,1, item)
+                self.map.add_item_at(2,2, item)
 
 
     @property

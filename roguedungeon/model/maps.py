@@ -308,6 +308,12 @@ class Map:
                 for k,v in map_items.items():
                     square.add_item(k,v)
 
+                # Load and items associated with a specific room ID
+                for k,v in ITEM_TO_ROOM_ID.items():
+                    if v == room_id:
+                        square.add_item(k,1)
+
+
                 # Store it in the cache if it is a real room
                 if room_id != Map.EXIT_UNKNOWN:
                     self._square_cache[(x,y)] = square

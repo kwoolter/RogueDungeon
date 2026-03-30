@@ -298,21 +298,19 @@ class RDCLI(cmd.Cmd):
             self.game.move(direction)
             self.print()
 
-            # Check if the move resulted in the game ending
-            if self.game.state in (model.RDGame.STATE_VICTORY, model.RDGame.STATE_GAME_OVER):
-                self.game_over()
-
         except BaseException as e:
             print(str(e))
             # Process any events that got raised
             self.process_events()
 
     def game_over(self):
+        """ Game Over routine"""
 
         # Check if you successfully completed the game
         if self.game.state == model.RDGame.STATE_VICTORY:
             print(f"Congratulations - you completed {self.game.name}")
 
+        # Print the game status
         v = view.GameTextView(self.game)
         v.print()
 
