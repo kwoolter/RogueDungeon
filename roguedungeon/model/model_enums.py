@@ -68,7 +68,9 @@ class Item(Enum):
     GREEN_CRYSTAL = "a green crystal ball"
     RED_CRYSTAL = "a red crystal ball"
     GREEN_CRYSTAL_PEDESTAL = "a green crystal pedestal"
+    GREEN_CRYSTAL_PEDESTAL_ACTIVATED = "a glowing green crystal pedestal"
     RED_CRYSTAL_PEDESTAL = "a red crystal pedestal"
+    RED_CRYSTAL_PEDESTAL_ACTIVATED = "a glowing red crystal pedestal"
 
 
     def __str__(self):
@@ -78,8 +80,9 @@ class Item(Enum):
 ITEM_TO_ROOM_ID = {
     Item.GREEN_CRYSTAL_PEDESTAL: 62,
     Item.RED_CRYSTAL_PEDESTAL: 63,
-    Item.BOOK: 20,
-    Item.TORCH: 1
+    Item.BOOK: 21,
+    Item.TORCH: 1,
+    Item.BED: 33
 }
 
 # What items can you interact with and...
@@ -94,6 +97,8 @@ ITEM_TO_REWARDS = {
     Item.WOOD : (Item.TORCH, "light", Item.FIRE, ()),
     Item.STONE_TABLET : (Item.BOOK, "translate", Item.MAGICAL_STONE, ()),
     Item.THIEF : (Item.SWORD, "kill", Item.THIEF_DEAD, (Resource.GOLD, Resource.GEMS)),
+    Item.GREEN_CRYSTAL_PEDESTAL : (Item.GREEN_CRYSTAL , "activate",Item.GREEN_CRYSTAL_PEDESTAL_ACTIVATED, (Resource.STEPS)),
+    Item.RED_CRYSTAL_PEDESTAL : (Item.RED_CRYSTAL, "activate", Item.RED_CRYSTAL_PEDESTAL_ACTIVATED, (Resource.STEPS))
     }
 
 # If an item is in a room what effect does it have

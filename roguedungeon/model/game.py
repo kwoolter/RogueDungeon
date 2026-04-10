@@ -50,12 +50,24 @@ class RDGame:
     def __init__(self, name: str):
         self.name = name
         self.map = None
-        self.state = RDGame.STATE_LOADED
         self.resources = {}
         self.inventory = set()
         self.events = EventQueue()
         self.deck = None
         self._debug = True
+
+        self.state = RDGame.STATE_LOADED
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, new_state):
+        self._state = new_state
+        self.events.add_event(Event(type=Event.STATE,
+                                    name=new_state,
+                                    description=f"Game state changed to {new_state}"))
 
     @property
     def rooms(self):
@@ -87,7 +99,7 @@ class RDGame:
 
         # Add some random usable items to the map
         items = [Item.CHEST_LOCKED, Item.SOFT_EARTH, Item.ROCK_OUTCROP, Item.RUBBISH, Item.WOOD,
-                 Item.STONE_TABLET, Item.THIEF, Item.BED]
+                 Item.STONE_TABLET, Item.THIEF]
         for i in range(10):
             item = random.choice(items)
             self.map.add_item_at(random.randint(0, self.map.max_width - 1),
@@ -105,7 +117,6 @@ class RDGame:
                                      random.randint(0, self.map.max_height - 1),
                                      e)
 
-
         # Allocate the daily resource allowances
         for resource in Resource:
             quantity = RDGame.RESOURCE_ALLOWANCE.get(resource, 0)
@@ -122,10 +133,9 @@ class RDGame:
 
             # Add some items to near your starting location
             for e in COLLECTABLE_ITEMS:
-                self.map.add_item_at(2,1,e)
+                self.map.add_item_at(2, 1, e)
             for item in items:
-                self.map.add_item_at(2,2, item)
-
+                self.map.add_item_at(2, 2, item)
 
     @property
     def current_room_id(self):
@@ -161,13 +171,13 @@ class RDGame:
     def get_square_items(self):
         """ Return a list of non-zero items that are present at this square"""
         square = self.map.get_map_square_at()
-        items = [k for k,v in square.items.items() if v>0]
+        items = [k for k, v in square.items.items() if v > 0]
         return items
 
     def get_square_resources(self):
         """ Return a list of non-zero resources that are present at this square"""
         square = self.map.get_map_square_at()
-        resources = [k for k,v in square.resources.items() if v>0]
+        resources = [k for k, v in square.resources.items() if v > 0]
         return resources
 
     def take_resource(self, resource: Resource, pay: bool = False):
@@ -374,8 +384,7 @@ class RDGame:
         else:
             raise ApplicationException("Unlock Exit", f"Exit {direction} from {current_square.room.name} is not locked")
 
-
-    def take_item(self, item : Item):
+    def take_item(self, item: Item):
 
         # Get the current square and see how much of the specified item there is
         square = self.get_current_map_square()
@@ -393,8 +402,7 @@ class RDGame:
         else:
             raise ApplicationException("Take Item", f"There is no {item.value} here")
 
-
-    def use_item(self, item : Item):
+    def use_item(self, item: Item):
         """ Attempt to dig at the current location"""
 
         # Get the details of the current square
@@ -411,12 +419,11 @@ class RDGame:
 
                 # Check if we own the required resource or item
                 if type(item_required) == Resource:
-                    is_item_require_owned = self.resources.get(item_required,0) > 0
+                    is_item_require_owned = self.resources.get(item_required, 0) > 0
                 elif type(item_required) == Item:
                     is_item_require_owned = item_required in self.inventory
                 else:
                     is_item_require_owned = False
-
 
                 # See if you have the required item...
                 if is_item_require_owned == True:
@@ -571,7 +578,7 @@ class RDGame:
         self.map.set_room_at(x, y, room_id)
 
         # Move the player to the new room
-        #self.map.move(direction)
+        # self.map.move(direction)
         self.move(direction)
 
         # Run any logic that needs to be done after a new room has been dealt
@@ -582,7 +589,15 @@ class RDGame:
             raise ApplicationException("Cannot do that at this time", f"{self.name} game in state {self.state}")
 
         # Attempt to move the player in the specified direction
-        self.map.move(direction)
+        try:
+            self.map.move(direction)
+        except ApplicationException as e:
+            self.events.add_event(Event(type=Event.GAME,
+                                        name=Event.GAME_ACTION_FAILED,
+                                        description=e.description))
+            raise e
+        except Exception as e:
+            raise e
 
         # Add any effects from items in the current square
         current_square = self.map.get_map_square_at()

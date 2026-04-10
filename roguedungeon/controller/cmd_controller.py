@@ -3,7 +3,7 @@ import roguedungeon.model as model
 import roguedungeon.view as view
 import logging
 
-from roguedungeon.model import Event
+from roguedungeon.model import Event, ApplicationException
 
 
 class RDCLI(cmd.Cmd):
@@ -130,9 +130,6 @@ class RDCLI(cmd.Cmd):
         """Move North"""
         self.move(model.Direction.NORTH)
 
-        # Process any events that got raised
-        self.process_events()
-
     def do_s(self, args):
         """Move South"""
         return self.do_S(args)
@@ -141,8 +138,6 @@ class RDCLI(cmd.Cmd):
         """Move South"""
         self.move(model.Direction.SOUTH)
 
-        # Process any events that got raised
-        self.process_events()
 
     def do_e(self, args):
         """Move East"""
@@ -152,8 +147,6 @@ class RDCLI(cmd.Cmd):
         """Move East"""
         self.move(model.Direction.EAST)
 
-        # Process any events that got raised
-        self.process_events()
 
     def do_w(self, args):
         """Move West"""
@@ -163,8 +156,6 @@ class RDCLI(cmd.Cmd):
         """Move West"""
         self.move(model.Direction.WEST)
 
-        # Process any events that got raised
-        self.process_events()
 
     def do_use(self, args):
         """ Try interacting with something that you can see at the current location"""
@@ -286,10 +277,12 @@ class RDCLI(cmd.Cmd):
             # Process any events that got raised
             self.process_events()
 
-        except BaseException as e:
-            print(e)
-
+        except ApplicationException as e:
             # Process any events that got raised
+            self.process_events()
+
+        except Exception as e:
+            print(e)
             self.process_events()
 
     def move(self, direction):
@@ -298,10 +291,16 @@ class RDCLI(cmd.Cmd):
             self.game.move(direction)
             self.print()
 
-        except BaseException as e:
-            print(str(e))
+        except ApplicationException as e:
             # Process any events that got raised
             self.process_events()
+
+        except Exception as e:
+            print(e)
+            self.process_events()
+
+
+
 
     def game_over(self):
         """ Game Over routine"""

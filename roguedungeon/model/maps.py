@@ -154,6 +154,11 @@ class Map:
         # Remove an items from the map
         self.map_items = {}
 
+        # HACKS GO HERE
+        self.set_room_at(0,0, 63)
+        self.set_room_at(4, 0, 62)
+
+
     def move(self, direction: Direction):
         """ Attempt to move from the current square in the specified direction """
 
@@ -183,7 +188,7 @@ class Map:
         # Check if a card has been dealt in the specified direction
         elif destination == Map.EXIT_UNKNOWN:
             raise ApplicationException(f"No room drafted",
-                                       f"No square has been dealt {direction.value} of {self.current_xy}")
+                                       f"No square has been dealt {direction.value} of {square.room.name}")
         # All good so let's move
         else:
             x, y = self.current_xy
