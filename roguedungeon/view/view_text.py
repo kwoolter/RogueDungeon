@@ -14,6 +14,17 @@ ROOM_COLOURS = {
     "Evil": Fore.BLACK + Back.LIGHTRED_EX
 }
 
+MAP_ROOM_COLOURS = {
+
+    "Shop": Fore.BLACK + Back.CYAN,
+    "Game": Fore.BLACK + Back.WHITE,
+    "Room": Fore.BLACK + Back.BLUE,
+    "Passageway": Fore.BLACK + Back.MAGENTA,
+    "Good" : Fore.BLACK + Back.GREEN,
+    "Evil": Fore.BLACK + Back.RED
+}
+
+
 RESOURCE_COLOURS = {
     model.Resource.GOLD : Back.YELLOW + Fore.BLACK,
     model.Resource.GEMS : Back.MAGENTA + Fore.BLACK,
@@ -209,22 +220,22 @@ class MapTextView(TextView):
             no_exit = [model.Map.EXIT_BLOCKED, model.Map.EXIT_NONE]
 
             # Define the colour scheme for each component of the Map display
-            grid_fgbg = Fore.BLACK + Back.GREEN
             blank_fgbg = Back.BLACK
             room_fgbg = Back.WHITE + Fore.BLACK
             header_fgbg1 = Back.LIGHTGREEN_EX + Fore.BLACK
             header_fgbg2 = Back.GREEN + Fore.BLACK
             current_fgbg = Back.LIGHTYELLOW_EX + Fore.BLACK
 
+
             # Create a map of exit direction to the character that gets printed if the exit is open or closed
             EXIT_TO_TEXT = {
-                model.Direction.NORTH: ("  ", f"{Style.RESET_ALL}  "),
-                model.Direction.SOUTH: ("  ", f"{Style.RESET_ALL}  "),
-                model.Direction.EAST: (" ", f"{Style.RESET_ALL} "),
-                model.Direction.WEST: (" ", f"{Style.RESET_ALL} ")
+                model.Direction.NORTH: (f"{Style.RESET_ALL}  ","  "),
+                model.Direction.SOUTH: (f"{Style.RESET_ALL}  ","  "),
+                model.Direction.EAST: (f"{Style.RESET_ALL} "," "),
+                model.Direction.WEST: (f"{Style.RESET_ALL} "," ")
             }
 
-            grid = ""
+
 
             # Build the map header row
             header = "   "
@@ -256,20 +267,21 @@ class MapTextView(TextView):
                 # Start each ro with the value of Y
                 for i in range(3):
                     if i == 1:
-                        text[i] = header_fgbg + f"{y+1:^3}" + grid
+                        text[i] = header_fgbg + f"{y+1:^3}"
                     else:
-                        text[i] = header_fgbg + f"   " + grid
+                        text[i] = header_fgbg + f"   "
 
                 # Loop through each column in the map
                 for x in range(0, self.map.max_width):
 
                     room_id = self.map.map[x,y]
                     square = self.map.get_map_square_at(x,y)
+                    room_fgbg = MAP_ROOM_COLOURS.get(square.room.room_type, Back.WHITE + Fore.BLACK)
 
                     # If this is an empty square fill with blanks
                     if room_id == 0:
                         for i in range(3):
-                            text[i] += blank_fgbg + "      " + grid
+                            text[i] += blank_fgbg + "      "
 
                     # Otherwise we need to display the square
                     else:
@@ -288,12 +300,13 @@ class MapTextView(TextView):
                                 exit = square.exits[direction].room_id
                                 o, c = EXIT_TO_TEXT[direction]
                                 if exit in no_exit:
-                                    x = c
+                                    x = f"{fgbg}{c}"
                                 elif exit == model.Map.EXIT_UNKNOWN:
-                                    x = "??"
+                                    x = f"{Style.RESET_ALL}??"
                                 else:
                                     x = o
-                                text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+                                #text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+                                text[i] += f"{fgbg}  {Style.RESET_ALL}{x}{fgbg}  "
 
                             # If we are on row 1 then this is the East/West exits
                             elif i == 1:
@@ -308,14 +321,15 @@ class MapTextView(TextView):
                                     o, c = EXIT_TO_TEXT[direction]
 
                                     if exit in no_exit:
-                                        x[i] = c
+                                        x[i] = f"{fgbg}{c}"
                                     elif exit == model.Map.EXIT_UNKNOWN:
-                                        x[i] = "?"
+                                        x[i] = f"{Style.RESET_ALL}?"
                                     else:
                                         x[i] = o
 
                                 #text[i] += f"{fgbg}{x[0]}{fgbg} {room_id:02} {x[1]}{Style.RESET_ALL}"
-                                text[i] += f"{fgbg}{x[0]}{fgbg}    {x[1]}{Style.RESET_ALL}"
+                                #text[i] += f"{fgbg}{x[0]}{fgbg}    {x[1]}{Style.RESET_ALL}"
+                                text[i] += f"{x[0]}{Style.RESET_ALL}    {x[1]}{Style.RESET_ALL}"
 
                             # if we are on row 2 this is the South exit
                             elif i == 2:
@@ -324,16 +338,15 @@ class MapTextView(TextView):
                                 exit = square.exits[direction].room_id
                                 o, c = EXIT_TO_TEXT[direction]
                                 if exit in no_exit:
-                                    x = c
+                                    x = f"{fgbg}{c}"
                                 elif exit == model.Map.EXIT_UNKNOWN:
-                                    x = "??"
+                                    x = f"{Style.RESET_ALL}??"
                                 else:
                                     x = o
 
-                                text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+                                #text[i] += f"{Style.RESET_ALL}  {fgbg}{x}{Style.RESET_ALL}  "
+                                text[i] += f"{fgbg}  {Style.RESET_ALL}{x}{fgbg}  "
 
-                        for i in range(3):
-                            text[i] += grid
 
                 #row += header_fgbg + f"{y + 1:^3}" + Style.RESET_ALL
                 for i in range(3):

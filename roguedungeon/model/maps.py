@@ -155,8 +155,8 @@ class Map:
         self.map_items = {}
 
         # HACKS GO HERE
-        self.set_room_at(0,0, 63)
-        self.set_room_at(4, 0, 62)
+        #self.set_room_at(0,0, 63)
+        #self.set_room_at(4, 0, 62)
 
 
     def move(self, direction: Direction):
@@ -173,17 +173,17 @@ class Map:
         # If no exit found in that direction then raise error
         else:
             raise ApplicationException(f"No exit",
-                                       f"Room {square.room.name} has no exit to the {direction.value}")
+                                       f"{square.room.name} has no exit to the {direction.value}")
 
         # If no exit in that direction then raise error
         if destination == Map.EXIT_NONE:
             raise ApplicationException(f"No exit",
-                                       f"Room {square.room.name} has no exit to the {direction.value}")
+                                       f"{square.room.name} has no exit to the {direction.value}")
 
         # Check if there is an exit in the specified direction
         elif destination == Map.EXIT_BLOCKED:
             raise ApplicationException(f"Exit Blocked",
-                                       f"Room {square.room.name} exit to the {direction.value} is blocked")
+                                       f"{square.room.name} exit to the {direction.value} is blocked")
 
         # Check if a card has been dealt in the specified direction
         elif destination == Map.EXIT_UNKNOWN:

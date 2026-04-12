@@ -283,8 +283,8 @@ class RDGame:
         # Do anything that needs doing before we go ahead and deal
         self.pre_deal_processing(direction)
 
-        # Try 3 times to get at least 3 cards
-        for i in range(3):
+        # Try 4 times to get at least 3 cards
+        for i in range(4):
 
             # Deal some cards
             results = self.deck.get_matching_rooms()
